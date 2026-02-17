@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import ttk
 #config.ini nacteni
 config= configparser.ConfigParser()
-config.read('config.ini', encoding="utf-8")
+config.read('config.ini', encoding="cp1250")
 
 #nacteni zpravy pro budouci upravy
 message = config.get("EMAIL","body")
@@ -13,6 +13,8 @@ message = config.get("EMAIL","body")
 #smtplib email.mime.text na poslani a vytvoreni sablony e-mailu
 #keyring pro Windows Credential Manager na ulozeni hesla
 #logování
+#realtime vyhledavani v .csv souboru a nacteni uzivatele
+#moznost vybrat vice emailu
 
 #potvrzeni odeslani mailu
 root = Tk()
@@ -26,10 +28,15 @@ def save_signature():
     if "SIGNATURE" not in config:
         #logni error, zavri hlavni frame, vytvor novy s errorem
         pass
-    #nastavi hodnoty (jmeno,telefon,oraganizacni cleneni) v ini souboru, otevre ho a ulozi
-    config.set('SIGNATURE','name',name_entry.get())
-    config.set('SIGNATURE', 'telephone', telephone_entry.get())
-    config.set('SIGNATURE', 'department', department_entry.get())
+    #nastavi hodnoty (jmeno,telefon,oraganizacni cleneni) v ini souboru, otevre ho a ulozi, pokud je entry prazdne tak se neulozi
+    if name_entry.get() != '':
+        config.set('SIGNATURE','name',name_entry.get())
+    if telephone_entry.get() != '':
+        config.set('SIGNATURE', 'telephone', telephone_entry.get())
+    if department_entry.get() != '':
+        config.set('SIGNATURE', 'department', department_entry.get())
+    if position_entry.get() != '':
+        config.set('SIGNATURE','position', position_entry.get())
     with open("config.ini","w") as f:
         config.write(f)
 
@@ -74,12 +81,15 @@ name_entry.grid(column=1,row=0)
 Label(signature_tab, text='Tel. číslo: ').grid(column=0,row=1)
 telephone_entry = Entry(signature_tab)
 telephone_entry.grid(column=1,row=1)
+#label + entry na pozici pracovníka
+position_entry = Entry(signature_tab)
+position_entry.grid(column=1,row=2)
 #label + entry na organizační členění
 Label(signature_tab, text='Org. členění').grid(column=0,row=2)
 department_entry = Entry(signature_tab)
-department_entry.grid(column=1,row=2)
+department_entry.grid(column=1,row=3)
 #button na uložení podpisu
-Button(signature_tab, text='uložit podpis',command=save_signature).grid(column=1,row=3)
+Button(signature_tab, text='uložit podpis',command=save_signature).grid(column=1,row=4)
 notebook.add(signature_tab, text='Podpis')
 
 root.mainloop()
