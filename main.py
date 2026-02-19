@@ -1,6 +1,7 @@
 import configparser
 from tkinter import *
 from tkinter import ttk
+
 #config.ini nacteni
 config= configparser.ConfigParser()
 config.read('config.ini', encoding="cp1250")
@@ -29,15 +30,19 @@ def save_signature():
         #logni error, zavri hlavni frame, vytvor novy s errorem
         pass
     #nastavi hodnoty (jmeno,telefon,oraganizacni cleneni) v ini souboru, otevre ho a ulozi, pokud je entry prazdne tak se neulozi
-    if name_entry.get() != '':
-        config.set('SIGNATURE','name',name_entry.get())
-    if telephone_entry.get() != '':
-        config.set('SIGNATURE', 'telephone', telephone_entry.get())
-    if department_entry.get() != '':
-        config.set('SIGNATURE', 'department', department_entry.get())
-    if position_entry.get() != '':
-        config.set('SIGNATURE','position', position_entry.get())
-    with open("config.ini","w") as f:
+    fields = {
+        "name": name_entry,
+        "telephone": telephone_entry,
+        "department": department_entry,
+        "position": position_entry
+    }
+
+    for key, entry in fields.items():
+        value = entry.get()
+        if value != '':
+            config.set('SIGNATURE', key, value)
+
+    with open("config.ini", "w", encoding='cp1250') as f:
         config.write(f)
 
     #ulozi podpis do .ini file
