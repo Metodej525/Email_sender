@@ -33,7 +33,7 @@ message["To"] = receiver_email
 # Send the email
 with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
     server.starttls()  # Secure connection
-    server.login(USERNAME, PASSWORD)
+    #server.login(USERNAME, PASSWORD)
     server.sendmail(sender_email, receiver_email, message.as_string())
 
 print("HTML email sent successfully!")

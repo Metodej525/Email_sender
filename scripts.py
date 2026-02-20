@@ -7,7 +7,7 @@ def safe_write_config(config, path):
 
     with tempfile.NamedTemporaryFile(
             mode="w",
-            encoding="utf-8",
+            encoding="cp1250",
             delete=False,
             dir=dir_name
     ) as tmp:
