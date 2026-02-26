@@ -1,8 +1,38 @@
-from tkinter import Frame, Button
+from tkinter import Frame, Button, Entry, Label
+from functools import partial
+from logic.email_manager import send_email
+
 
 class EmailTab(Frame):
-    def __init__(self,notebook, add_email_receiver):
+    def __init__(self,notebook):
         super().__init__(notebook)
-        self.add_email_receiver = add_email_receiver
+        self.send_email = send_email
+
+        Label(self, text='emailová schránka').grid(column=0,row=0)
+        Label(self,text='datum ukončení certifikátu').grid(column=1,row=0)
+
         notebook.add(self, text='Email')
-        Button(self, text='přidej email', command=add_email_receiver).grid(column=2,row=0)
+        Button(self, text='přidej email', command=partial(self.add_email_receiver)).grid(column=2,row=1)
+
+        self.buttons = []
+        self.email_entries = []
+        self.date_entries = []
+    def add_email_receiver(self):
+        entry_email = Entry(self)
+        entry_email.grid(column=0, row=len(self.email_entries) + 1)
+
+        entry_date = Entry(self)
+        entry_date.grid(column=1, row=len(self.email_entries)+ 1)
+
+        self.date_entries.append(entry_date)
+        self.email_entries.append(entry_email)
+
+        button = Button(self,
+                        text='odeslat mail',
+                        command=partial(self.send_email, self.email_entries, self.date_entries))
+        button.grid(column=1, row=len(self.email_entries) + 1)
+
+        self.buttons.append(button)
+        if len(self.buttons) > 1:
+            old_button = self.buttons.pop(0)
+            old_button.destroy()
