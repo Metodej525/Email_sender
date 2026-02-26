@@ -18,27 +18,27 @@ class EmailTab(Frame):
         self.email_entries = []
         self.date_entries = []
         self.default_entries()
-        button = Button(self,
-                        text='odeslat mail',
-                        command=partial(self.send_email, self.email_entries, self.date_entries))
-        button.grid(column=1, row=len(self.email_entries) + 1)
-        self.buttons.append(button)
-        if len(self.buttons) > 1:
-            old_button = self.buttons.pop(0)
-            old_button.destroy()
+
+
+
     def add_email_receiver(self):
-        entry_email = Entry(self)
-        entry_email.grid(column=0, row=len(self.email_entries) + 1)
+        if len(self.email_entries) < 6:
+            entry_email = Entry(self)
+            entry_email.grid(column=0, row=len(self.email_entries) + 1)
 
-        entry_date = Entry(self)
-        entry_date.grid(column=1, row=len(self.email_entries)+ 1)
+            entry_date = Entry(self)
+            entry_date.grid(column=1, row=len(self.email_entries)+ 1)
+            button = Button(self,
+                                 text='odeslat mail',
+                                 command=partial(self.send_email, self.email_entries, self.date_entries))
+            button.grid(column=1, row=len(self.email_entries) + 2)
+            self.date_entries.append(entry_date)
+            self.email_entries.append(entry_email)
+            self.buttons.append(button)
 
-        self.date_entries.append(entry_date)
-        self.email_entries.append(entry_email)
-
-
-
-
+            if len(self.buttons) > 1:
+                old_button = self.buttons.pop(0)
+                old_button.destroy()
     def default_entries(self):
         entry_email = Entry(self)
         entry_email.grid(column=0,row=1)

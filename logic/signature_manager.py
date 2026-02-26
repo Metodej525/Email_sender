@@ -19,5 +19,3 @@ def load_signature_data(config):
             'telephone':telephone,
             'position':position,
             'login':login}
-
-
