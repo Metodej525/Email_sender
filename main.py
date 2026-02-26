@@ -12,7 +12,8 @@ from tkinter import ttk
 from gui.signature_window import SignatureTab
 from gui.email_window import EmailTab
 from utils import safe_write_config
-from logic.signature_manager import save_signature
+from logic.signature_manager import save_signature,load_signature_data
+from logic.email_manager import send_email
 #config.ini nacteni
 config= configparser.ConfigParser()
 config.read('config.ini', encoding="cp1250")
@@ -24,9 +25,10 @@ message = config.get("EMAIL","body")
 root = Tk()
 notebook = ttk.Notebook(root)
 notebook.pack(expand=True,fill='both')
-
-email_tab = EmailTab(notebook)
-signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config)
+root.title(":)")
+root.geometry('400x300')
+email_tab = EmailTab(notebook,send_email)
+signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
 
 root.mainloop()
 

@@ -1,10 +1,10 @@
 from tkinter import Frame, Button, Entry, Label
 from functools import partial
-from logic.email_manager import send_email
+
 
 
 class EmailTab(Frame):
-    def __init__(self,notebook):
+    def __init__(self,notebook, send_email):
         super().__init__(notebook)
         self.send_email = send_email
 
@@ -17,6 +17,15 @@ class EmailTab(Frame):
         self.buttons = []
         self.email_entries = []
         self.date_entries = []
+        self.default_entries()
+        button = Button(self,
+                        text='odeslat mail',
+                        command=partial(self.send_email, self.email_entries, self.date_entries))
+        button.grid(column=1, row=len(self.email_entries) + 1)
+        self.buttons.append(button)
+        if len(self.buttons) > 1:
+            old_button = self.buttons.pop(0)
+            old_button.destroy()
     def add_email_receiver(self):
         entry_email = Entry(self)
         entry_email.grid(column=0, row=len(self.email_entries) + 1)
@@ -27,12 +36,15 @@ class EmailTab(Frame):
         self.date_entries.append(entry_date)
         self.email_entries.append(entry_email)
 
-        button = Button(self,
-                        text='odeslat mail',
-                        command=partial(self.send_email, self.email_entries, self.date_entries))
-        button.grid(column=1, row=len(self.email_entries) + 1)
 
-        self.buttons.append(button)
-        if len(self.buttons) > 1:
-            old_button = self.buttons.pop(0)
-            old_button.destroy()
+
+
+    def default_entries(self):
+        entry_email = Entry(self)
+        entry_email.grid(column=0,row=1)
+
+        entry_date = Entry(self)
+        entry_date.grid(column=1, row=1)
+
+        self.date_entries.append(entry_date)
+        self.email_entries.append(entry_email)
