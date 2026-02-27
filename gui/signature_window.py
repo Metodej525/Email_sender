@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import Button, Entry, Label, Frame
 
 class SignatureTab(Frame):
     def __init__(self, notebook,config,save_signature,safe_write_config,load_signature_data):
@@ -46,7 +46,7 @@ class SignatureTab(Frame):
 
         self.save_signature(self.config, data, self.safe_write_config)
         self.signature_data = self.load_signature_data(self.config)
-        self.default_entry_data()
+
         temp_label = Label(self, text='podpis uložen')
         temp_label.grid(column=0, row=6, columnspan=2)
         self.after(2000, temp_label.destroy)

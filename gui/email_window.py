@@ -17,7 +17,7 @@ class EmailTab(Frame):
         self.buttons = []
         self.email_entries = []
         self.date_entries = []
-        self.default_entries()
+        self.default_widgets()
 
 
 
@@ -39,12 +39,17 @@ class EmailTab(Frame):
             if len(self.buttons) > 1:
                 old_button = self.buttons.pop(0)
                 old_button.destroy()
-    def default_entries(self):
+    def default_widgets(self):
         entry_email = Entry(self)
         entry_email.grid(column=0,row=1)
 
         entry_date = Entry(self)
         entry_date.grid(column=1, row=1)
 
+        send_button = Button(self,text='odeslat mail',
+                                 command=partial(self.send_email, self.email_entries, self.date_entries))
+        send_button.grid(column=1, row=len(self.email_entries) + 2)
+
+        self.buttons.append(send_button)
         self.date_entries.append(entry_date)
         self.email_entries.append(entry_email)
