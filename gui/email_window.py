@@ -17,9 +17,8 @@ class EmailTab(Frame):
         self.buttons = []
         self.email_entries = []
         self.date_entries = []
+
         self.default_widgets()
-
-
 
     def add_email_receiver(self):
         if len(self.email_entries) < 6:
@@ -39,6 +38,7 @@ class EmailTab(Frame):
             if len(self.buttons) > 1:
                 old_button = self.buttons.pop(0)
                 old_button.destroy()
+
     def default_widgets(self):
         entry_email = Entry(self)
         entry_email.grid(column=0,row=1)
