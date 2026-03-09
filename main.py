@@ -21,9 +21,9 @@ config= configparser.ConfigParser()
 config.read('config.ini', encoding="cp1250")
 
 #nacteni zpravy pro budouci upravy
-message = config.get("EMAIL","body")
+message = config.get(section="EMAIL",option="body")
 #cesta k excel souboru
-excel_path='ahoj'
+excel_path=config.get(section="EXCEL",option='path')
 
 
 root = Tk()
@@ -33,7 +33,7 @@ root.title(":)")
 root.geometry('400x300')
 email_tab = EmailTab(notebook,send_email)
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
-excel_tab = ExcelTab(notebook,excel_path)
+excel_tab = ExcelTab(notebook,excel_path,email_tab.reset_tab)
 
 notebook.add(email_tab, text="Email")
 notebook.add(signature_tab, text="Signature")
