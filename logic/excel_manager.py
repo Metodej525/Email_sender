@@ -5,5 +5,8 @@ def excel_search(value,excel_load):
         slice_df = df.loc[df['name'].str.contains(value, case=False, na=False)].head(5)
         return list(zip(slice_df['name'], slice_df['date']))
     return None
-def excel_path_load():
-    pass
+def excel_path_load(config,value,write_config):
+    if "EXCEL" not in config:
+        raise ValueError("Chybí sekce SIGNATURE")
+    config.set("EXCEL", 'path', value)
+    write_config(config, "config.ini")

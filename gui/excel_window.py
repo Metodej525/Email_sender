@@ -2,13 +2,16 @@ from tkinter import Button, Label, Frame, Entry
 import pandas as pd
 
 class ExcelTab(Frame):
-    def __init__(self,notebook,excel_file_path, reset_tab):
+    def __init__(self,notebook,excel_file_path, reset_tab,excel_path_save,write_config, config):
         super().__init__(notebook)
         self.reset_email_tab = reset_tab
         self.excel_file_path = excel_file_path
+        self.excel_path_save = excel_path_save
+        self.write_config = write_config
+        self.config = config
         #cesta k entry s insertem cesty k souboru .xlx + button na nastaveni cesty
         renew_excel_path_button = Button(self,text='Přepsání cesty k souboru',command=self.renew_excel_path)
-        renew_excel_path_button.grid(column=0,row=1)
+        renew_excel_path_button.grid(column=1,row=0)
         self.path_entry = Entry(self)
         self.path_entry.grid(column=0, row=0)
         self.path_entry.insert(0,f'{self.excel_file_path}')
@@ -31,7 +34,8 @@ class ExcelTab(Frame):
             self.after(5000, excel_error_label.destroy)
             return False, None
     def renew_excel_path(self):
-        pass
+        path = self.path_entry.get()
+        self.excel_path_save(self.config,path,self.write_config)
     def reload_excel(self):
         self.reset_email_tab()
         self.load_excel()
