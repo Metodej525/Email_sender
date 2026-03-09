@@ -13,7 +13,7 @@ from gui.signature_window import SignatureTab
 from gui.email_window import EmailTab
 from utils import safe_write_config
 from logic.signature_manager import save_signature,load_signature_data
-from logic.email_manager import send_email
+from logic.email_manager import send_email, load_email_details
 from gui.excel_window import ExcelTab
 from logic.excel_manager import excel_path_load, excel_search
 #config.ini nacteni
@@ -31,7 +31,7 @@ notebook = ttk.Notebook(root)
 notebook.pack(expand=True,fill='both')
 root.title(":)")
 root.geometry('800x400')
-email_tab = EmailTab(notebook,send_email)
+email_tab = EmailTab(notebook,send_email,load_email_details,config)
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
 excel_tab = ExcelTab(notebook,excel_path,email_tab.reset_tab,excel_path_load,safe_write_config,config)
 

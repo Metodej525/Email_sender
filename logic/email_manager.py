@@ -10,5 +10,18 @@ def send_email(date_list,email_list):
         x.destroy()
     for y in email_list:
         y.destroy()
-
+def load_email_details(config):
+    smtp_server = config.get('EMAIL', 'smtp_server', fallback='')
+    smtp_port = config.get('EMAIL', 'smtp_port', fallback='')
+    username = config.get('EMAIL', 'username', fallback='')
+    sender_email = config.get('EMAIL', 'sender_email', fallback='')
+    subject = config.get('EMAIL', 'subject', fallback='')
+    body = config.get('EMAIL', 'body', fallback='')
+    return {'smtp_server': smtp_server,
+            'smtp_port': smtp_port,
+            'username': username,
+            'sender_email': sender_email,
+            'subject': subject,
+            'body':body
+            }
 

@@ -12,17 +12,10 @@ USERNAME = "your_email@example.com"
 PASSWORD = "your_password"
 
 # Email Details
-sender_email = "no-replyTESTemailAPP@ikem.cz"
-receiver_email = "metodej.alexa@ikem.cz"
-subject = "HTML Email from Python"
-html_body = """\
-<html>
-  <body>
-    <h2>Hello,</h2>
-    <p>This is an <b>HTML</b> email sent using <a href="https://python.org">Python</a>.</p>
-  </body>
-</html>
-"""
+sender_email = ""
+receiver_email = ""
+subject = ""
+html_body = ""
 
 # Create the email
 message = MIMEText(html_body, "html")  # Change "plain" to "html"

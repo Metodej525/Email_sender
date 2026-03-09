@@ -1,13 +1,13 @@
 from tkinter import Frame, Button, Entry, Label , StringVar
 from functools import partial
-
+from tkhtmlview import HTMLLabel
 
 
 class EmailTab(Frame):
-    def __init__(self,notebook, send_email):
+    def __init__(self,notebook, send_email, load_email_details,config):
         super().__init__(notebook)
         self.send_email = send_email
-
+        self.load_email_details = load_email_details(config)
         Label(self, text='emailová schránka').grid(column=0,row=0)
         Label(self,text='datum ukončení certifikátu').grid(column=1,row=0)
 
@@ -50,12 +50,28 @@ class EmailTab(Frame):
         send_button = Button(self,text='odeslat mail',
                                  command=partial(self.send_email, self.email_entries, self.date_entries))
         send_button.grid(column=1, row=len(self.email_entries) + 2)
-        #kontrola widgetu odeslat email, aby se nevytvoril znovu
+        #Náhled mailu
+        html = self.load_email_details['body'].encode('cp1250').decode('utf-8', errors='ignore')
+        # Převod dvojitých novinek na odstavce
+        html = html.replace('\r\n\r\n', '</p><p>')
+        html = html.replace('\n\n', '</p><p>')
+
+        # Převod jednotlivých nových řádků na <br>
+        html = html.replace('\r\n', '<br>')
+        html = html.replace('\n', '<br>')
+
+        # Obal pro celý text do <p>
+        html = f"<p>{html}</p>"
+        email_label = HTMLLabel(self, html=html)
+        email_label.grid(column=3, row=0)
+
+        #Kontrola widgetu odeslat email, aby se nevytvoril znovu
         if not hasattr(self, 'add_email_button') or not self.add_email_button.winfo_exists():
             self.add_email_button = Button(self, text='přidej email', command=partial(self.add_email_receiver))
             self.add_email_button.grid(column=2, row=1)
         # else:
         #     print('button už tam je')
+
         self.buttons.append(send_button)
         self.date_entries.append(entry_date)
         self.email_entries.append(entry_email)
@@ -65,4 +81,9 @@ class EmailTab(Frame):
     def reset_tab(self):
         for widget in self.winfo_children():
             widget.destroy()
+
+        self.buttons.clear()
+        self.email_entries.clear()
+        self.date_entries.clear()
+
         self.default_widgets()
