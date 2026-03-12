@@ -14,8 +14,10 @@ def load_signature_data(config):
     department = config.get('SIGNATURE', 'department', fallback='')
     position = config.get('SIGNATURE', 'position', fallback='')
     login = config.get('SIGNATURE', 'login', fallback='')
+    email = config.get('SIGNATURE', 'email', fallback='')
     return {'name':name,
             'department':department,
             'telephone':telephone,
             'position':position,
-            'login':login}
+            'login':login,
+            'email':email}

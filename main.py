@@ -11,11 +11,14 @@ from tkinter import *
 from tkinter import ttk
 from gui.signature_window import SignatureTab
 from gui.email_window import EmailTab
+from gui.excel_window import ExcelTab
+from gui.email_preview_window import EmailPreviewTab
 from utils import safe_write_config
 from logic.signature_manager import save_signature,load_signature_data
 from logic.email_manager import send_email, load_email_details
-from gui.excel_window import ExcelTab
 from logic.excel_manager import excel_path_load, excel_search
+
+
 #config.ini nacteni
 config= configparser.ConfigParser()
 config.read('config.ini', encoding="cp1250")
@@ -30,15 +33,33 @@ root = Tk()
 notebook = ttk.Notebook(root)
 notebook.pack(expand=True,fill='both')
 root.title(":)")
-root.geometry('800x400')
-email_tab = EmailTab(notebook,send_email,load_email_details,config)
+
+email_tab = EmailTab(notebook,send_email)
+email_preview_tab = EmailPreviewTab(notebook,load_email_details,config)
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
 excel_tab = ExcelTab(notebook,excel_path,email_tab.reset_tab,excel_path_load,safe_write_config,config)
 
+
 notebook.add(email_tab, text="Email")
+notebook.add(email_preview_tab,text='Náhled emialu')
 notebook.add(signature_tab, text="Signature")
 notebook.add(excel_tab, text="Excel")
 
+def resize_tab(event):
+    tab_id = event.widget.select()
+    tab = event.widget.nametowidget(tab_id)
+
+    if tab == email_tab:
+        root.geometry("500x300")
+    elif tab == email_preview_tab:
+        root.geometry("800x600")
+    elif tab == signature_tab:
+        root.geometry('300x200')
+    elif tab == excel_tab:
+        root.geometry("600x200")
+
+notebook.bind("<<NotebookTabChanged>>", resize_tab)
+root.geometry("500x150")
 root.mainloop()
 
 

@@ -27,14 +27,21 @@ class SignatureTab(Frame):
         Label(self, text='Org. členění').grid(column=0,row=3)
         self.department_entry = Entry(self)
         self.department_entry.grid(column=1,row=3)
-        #login
+        #label + entry na login
         Label(self, text='Login').grid(column=0,row=4)
         self.login_entry = Entry(self)
         self.login_entry.grid(column=1,row=4)
+        #label + entry na email
+        Label(self, text='Email').grid(column=0, row=5)
+        self.email_entry = Entry(self)
+        self.email_entry.grid(column=1, row=5)
         #button na uložení podpisu
-        Button(self, text='uložit podpis',command=self.on_save).grid(column=1,row=5)
+        Button(self, text='uložit podpis',command=self.on_save).grid(column=1,row=6)
         notebook.add(self, text='Podpis')
         self.default_entry_data()
+
+    #funkce pro button ulozit podpis, ulozi data do slovniku a zavola funkci pro ulozeni do configu + temp_label pro info
+    #ze s email ulozil
     def on_save(self):
         data = {
             "name": self.name_entry.get(),
@@ -42,18 +49,21 @@ class SignatureTab(Frame):
             "department": self.department_entry.get(),
             "position": self.position_entry.get(),
             'login': self.login_entry.get(),
+            'email':self.email_entry.get()
         }
 
         self.save_signature(self.config, data, self.safe_write_config)
         self.signature_data = self.load_signature_data(self.config)
 
         temp_label = Label(self, text='podpis uložen')
-        temp_label.grid(column=0, row=6, columnspan=2)
+        temp_label.grid(column=0, row=7, columnspan=2)
         self.after(2000, temp_label.destroy)
 
+    #nacte defualt data z konfigu a insertne do entry, aby uzivatel vedel co tam je
     def default_entry_data(self):
         self.name_entry.insert(0, self.signature_data['name'])
         self.telephone_entry.insert(0, self.signature_data['telephone'])
         self.position_entry.insert(0, self.signature_data['position'])
         self.department_entry.insert(0, self.signature_data['department'])
         self.login_entry.insert(0, self.signature_data['login'])
+        self.email_entry.insert(0,self.signature_data['email'])

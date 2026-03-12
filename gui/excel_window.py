@@ -11,26 +11,26 @@ class ExcelTab(Frame):
         self.config = config
         #cesta k entry s insertem cesty k souboru .xlx + button na nastaveni cesty
         renew_excel_path_button = Button(self,text='Přepsání cesty k souboru',command=self.renew_excel_path)
-        renew_excel_path_button.grid(column=1,row=0)
+        renew_excel_path_button.grid(column=1,row=0,sticky="nw",padx=5, pady=5)
         self.path_entry = Entry(self)
-        self.path_entry.grid(column=0, row=0)
+        self.path_entry.grid(column=0, row=0,sticky="nw",padx=5, pady=5)
         self.path_entry.insert(0,f'{self.excel_file_path}')
         button_reload_excel = Button(self,
                                          text='reload excel file',
                                          command=self.reload_excel)
-        button_reload_excel.grid(column=0, row=1)
+        button_reload_excel.grid(column=0, row=1,sticky="nw",padx=5, pady=5)
 
         self.load_excel()
     def load_excel(self):
         try:
             df = pd.read_excel(self.excel_file_path)
             excel_success_label = Label(self, text=f'Excel soubor úspěšně načten')
-            excel_success_label.grid(column=0, row=2)
+            excel_success_label.grid(column=1, row=2,sticky="nw",padx=5, pady=5)
             self.after(5000, excel_success_label.destroy)
             return True,df
         except Exception as e:
             excel_error_label = Label(self, text=f'Chyba při načítání Excelu: {e}')
-            excel_error_label.grid(column=0, row=2)
+            excel_error_label.grid(column=1, row=2,sticky="nw",padx=5, pady=5)
             self.after(5000, excel_error_label.destroy)
             return False, None
     def renew_excel_path(self):
