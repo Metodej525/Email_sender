@@ -2,9 +2,9 @@ from tkinter import Button, Label, Frame, Entry
 import pandas as pd
 
 class ExcelTab(Frame):
-    def __init__(self,notebook,excel_file_path, reset_tab,excel_path_save,write_config, config):
+    def __init__(self,notebook,excel_file_path,excel_path_save,write_config, config):
         super().__init__(notebook)
-        self.reset_email_tab = reset_tab
+        # self.reset_email_tab = reset_tab
         self.excel_file_path = excel_file_path
         self.excel_path_save = excel_path_save
         self.write_config = write_config
@@ -37,5 +37,5 @@ class ExcelTab(Frame):
         path = self.path_entry.get()
         self.excel_path_save(self.config,path,self.write_config)
     def reload_excel(self):
-        self.reset_email_tab()
+        # self.reset_email_tab()
         self.load_excel()

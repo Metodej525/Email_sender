@@ -1,103 +1,72 @@
 from tkinter import Frame, Button, Entry, Label
-from functools import partial
+
 
 
 
 class EmailTab(Frame):
-    def __init__(self,notebook, send_email):
+
+    def __init__(self,notebook):
         super().__init__(notebook)
+        self.toolbox()
+        self.default_row()
+        self.rows = []
 
-        self.send_email = send_email
-        notebook.config(width=500,height=100)
-        Label(self, text='emailová schránka').grid(column=0,row=0,sticky="nw",padx=5, pady=5)
-        Label(self,text='datum ukončení certifikátu').grid(column=1,row=0,sticky="nw",padx=5, pady=5)
-        self.columnconfigure(3, weight=1)
-        notebook.add(self, text='Email')
-        self.add_email_button = Button(self, text='přidej email', command=partial(self.add_email_receiver))
-        self.add_email_button.grid(column=2, row=1)
 
-        self.buttons = []
-        self.email_entries = []
-        self.date_entries = []
-        self.delete_email_buttons = []
-        self.email_preview_buttons = []
+    def toolbox(self):
+        Label(self,text='Email').grid(column=0,row=0)
+        Label(self,text='Datum vypršení certifikátu').grid(column=1,row=0)
+    def default_row(self):
+        btn_add_email = Button(self,text='add',command=self.add_email)
+        btn_add_email.grid(column=2,row=1)
 
-        self.default_widgets()
-
-    def add_email_receiver(self):
-        if len(self.email_entries) < 5:
-            row = len(self.email_entries) + 1
-            entry_email = Entry(self)
-            entry_email.grid(column=0, row=row,sticky="nw",padx=5, pady=5)
-
-            entry_date = Entry(self)
-            entry_date.grid(column=1, row=row,sticky="nw",padx=5, pady=5)
-            button = Button(self,
-                                 text='odeslat mail',
-                                 command=partial(self.send_email,
-                                                 self.email_entries,
-                                                 self.date_entries,
-                                                 self.delete_email_buttons,
-                                                 self.email_preview_buttons
-                                                 )
-                            )
-            button.grid(column=1, row=row + 1)
-
-            button_email_delete = Button(self,text='x')
-            button_email_delete.grid(column=2, row=row,sticky="nw",padx=5, pady=5)
-
-            button_email_preview = Button(self,text='🔎')
-            button_email_preview.grid(column=3, row=row,sticky="nw",padx=5, pady=5)
-
-            self.date_entries.append(entry_date)
-            self.email_entries.append(entry_email)
-            self.buttons.append(button)
-            self.delete_email_buttons.append(button_email_delete)
-            self.email_preview_buttons.append(button_email_preview)
-
-            if len(self.buttons) > 1:
-                old_button = self.buttons.pop(0)
-                old_button.destroy()
-
-    def default_widgets(self):
         entry_email = Entry(self)
-        entry_email.grid(column=0,row=1,sticky="nw",padx=5, pady=5)
+        entry_email.grid(column=0,row=1)
 
         entry_date = Entry(self)
-        entry_date.grid(column=1, row=1,sticky="nw",padx=5, pady=5)
+        entry_date.grid(column=1,row=1)
 
-        send_button = Button(self,text='odeslat mail',
-                                 command=partial(self.send_email,
-                                                 self.email_entries,
-                                                 self.date_entries,
-                                                 self.delete_email_buttons,
-                                                 self.email_preview_buttons
-                                                 )
-                             )
-        send_button.grid(column=1, row=len(self.email_entries) + 2)
-        #Kontrola widgetu odeslat email, aby se nevytvoril znovu
-        if not hasattr(self, 'add_email_button') or not self.add_email_button.winfo_exists():
-            self.add_email_button = Button(self, text='přidej email', command=partial(self.add_email_receiver))
-            self.add_email_button.grid(column=2, row=1)
-        # else:
-        #     print('button už tam je')
-        self.buttons.append(send_button)
-        self.date_entries.append(entry_date)
-        self.email_entries.append(entry_email)
-    def live_search(self):
+    def add_email(self):
+        row = EmailRow(self, self.remove_row, self.email_preview)
+
+        self.rows.append(row)
+
+        row.grid(row=len(self.rows), column=0, columnspan=4, sticky="w")
+
+    def remove_row(self, row):
+
+        row.destroy()
+
+        self.rows.remove(row)
+
+        for i, r in enumerate(self.rows):
+            r.grid_configure(row=i + 1)
+
+    def send_email(self):
         pass
-    def reset_tab(self):
-        for widget in self.winfo_children():
-            widget.destroy()
 
-        self.buttons.clear()
-        self.email_entries.clear()
-        self.date_entries.clear()
+    def reset_rows(self):
+        self.default_row()
+        for i in self.rows:
+            for key,widget in i.items():
+                widget.destroy()
+        self.rows = []
 
-        self.default_widgets()
+    def email_preview(self):
+        pass
 
-    def delete_row(self,delete_button):
-        info = delete_button.grid_info()
-        row = info['row'] - 2
-        self.delete_email_buttons.remove(delete_button)
+class EmailRow(Frame):
 
+    def __init__(self, parent, remove_callback, preview_callback):
+        super().__init__(parent)
+
+        self.entry_email = Entry(self)
+        self.entry_email.grid(column=0, row=0)
+
+        self.entry_date = Entry(self)
+        self.entry_date.grid(column=1, row=0)
+
+        btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
+        btn_delete.grid(column=2, row=0)
+
+        btn_preview = Button(self, text="🔎", command=preview_callback)
+        btn_preview.grid(column=3, row=0)

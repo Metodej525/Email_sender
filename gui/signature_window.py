@@ -37,7 +37,6 @@ class SignatureTab(Frame):
         self.email_entry.grid(column=1, row=5)
         #button na uložení podpisu
         Button(self, text='uložit podpis',command=self.on_save).grid(column=1,row=6)
-        notebook.add(self, text='Podpis')
         self.default_entry_data()
 
     #funkce pro button ulozit podpis, ulozi data do slovniku a zavola funkci pro ulozeni do configu + temp_label pro info

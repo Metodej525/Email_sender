@@ -34,10 +34,10 @@ notebook = ttk.Notebook(root)
 notebook.pack(expand=True,fill='both')
 root.title(":)")
 
-email_tab = EmailTab(notebook,send_email)
-email_preview_tab = EmailPreviewTab(notebook,load_email_details,config)
+email_tab = EmailTab(notebook)
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
-excel_tab = ExcelTab(notebook,excel_path,email_tab.reset_tab,excel_path_load,safe_write_config,config)
+email_preview_tab = EmailPreviewTab(notebook,load_email_details,config)
+excel_tab = ExcelTab(notebook,excel_path,excel_path_load,safe_write_config,config)
 
 
 notebook.add(email_tab, text="Email")
