@@ -5,12 +5,13 @@ class EmailTab(Frame):
 
     def __init__(self,notebook,root):
         super().__init__(notebook)
-        self.toolbox()
-        self.default_row()
         self.rows = []
         self.root = root
         self.btn_send_email_list = []
         self.btn_send_email = None
+        self.toolbox()
+        self.default_row()
+
 
     def toolbox(self):
         Label(self,text='Email').grid(column=0,row=0,pady=5,padx=5)
@@ -28,22 +29,27 @@ class EmailTab(Frame):
         btn_preview = Button(self, text="🔎", command=lambda: self.email_preview(self))
         btn_preview.grid(column=3, row=1)
 
-        self.btn_send_email = Button(self, text='Odeslat email', command='')
-        self.btn_send_email.grid(column=2, row=1)
+        self.btn_send_email = Button(self, text='Odeslat email', command=self.send_email)
+        self.btn_send_email.grid(column=1, row=2)
 
-        self.btn_send_email_list.append(btn_add_email)
+        self.btn_send_email_list.append(self.btn_send_email)
 
     def add_email(self):
         if self.btn_send_email in self.btn_send_email_list:
             self.btn_send_email_list.clear()
             self.btn_send_email.destroy()
-            if len(self.rows) < 4:
-                row = EmailRow(self, self.remove_row, self.email_preview)
 
-                self.rows.append(row)
+            self.btn_send_email = Button(self, text='Odeslat email', command=self.send_email)
+            self.btn_send_email.grid(column=1, row=len(self.rows)+3)
 
-                row.grid(row=len(self.rows)
-                         +1, column=0, columnspan=5, sticky="w")
+            self.btn_send_email_list.append(self.btn_send_email)
+        if len(self.rows) < 4:
+            row = EmailRow(self, self.remove_row, self.email_preview)
+
+            self.rows.append(row)
+
+            row.grid(row=len(self.rows)
+                     +1, column=0, columnspan=5, sticky="w")
 
 
     def remove_row(self, row):
@@ -57,14 +63,14 @@ class EmailTab(Frame):
             print(i)
 
     def send_email(self):
-        pass
+        self.reset_rows()
 
     def reset_rows(self):
         self.default_row()
-        for i in self.rows:
-            for key,widget in i.items():
+        for tab in self.rows:
+            for widget in tab.winfo_children():
                 widget.destroy()
-        self.rows = []
+        self.rows.clear()
 
     def email_preview(self,row):
         if row in self.rows:
