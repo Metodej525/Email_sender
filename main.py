@@ -18,7 +18,6 @@ from logic.signature_manager import save_signature,load_signature_data
 from logic.email_manager import send_email, load_email_details
 from logic.excel_manager import excel_path_load, excel_search
 
-
 #config.ini nacteni
 config= configparser.ConfigParser()
 config.read('config.ini', encoding="cp1250")
@@ -28,13 +27,12 @@ message = config.get(section="EMAIL",option="body")
 #cesta k excel souboru
 excel_path=config.get(section="EXCEL",option='path')
 
-
 root = Tk()
 notebook = ttk.Notebook(root)
 notebook.pack(expand=True,fill='both')
 root.title(":)")
 
-email_tab = EmailTab(notebook)
+email_tab = EmailTab(notebook,root)
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
 email_preview_tab = EmailPreviewTab(notebook,load_email_details,config)
 excel_tab = ExcelTab(notebook,excel_path,excel_path_load,safe_write_config,config)

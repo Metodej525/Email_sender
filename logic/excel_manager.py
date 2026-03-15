@@ -7,6 +7,6 @@ def excel_search(value,excel_load):
     return None
 def excel_path_load(config,value,write_config):
     if "EXCEL" not in config:
-        raise ValueError("Chybí sekce SIGNATURE")
+        raise ValueError("Chybí sekce EXCEL")
     config.set("EXCEL", 'path', value)
     write_config(config, "config.ini")
