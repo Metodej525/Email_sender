@@ -7,7 +7,7 @@ class EmailTab(Frame):
         super().__init__(notebook)
         self.rows = []
         self.root = root
-        self.btn_send_email_list = []
+
         self.btn_send_email = None
         self.toolbox()
         self.default_row()
@@ -16,6 +16,7 @@ class EmailTab(Frame):
     def toolbox(self):
         Label(self,text='Email').grid(column=0,row=0,pady=5,padx=5)
         Label(self,text='Datum vypršení certifikátu').grid(column=1,row=0,pady=5,padx=5)
+
     def default_row(self):
         btn_add_email = Button(self,text='add',command=self.add_email)
         btn_add_email.grid(column=2,row=1)
@@ -28,21 +29,16 @@ class EmailTab(Frame):
 
         btn_preview = Button(self, text="🔎", command=lambda: self.email_preview(self))
         btn_preview.grid(column=3, row=1)
-
-        self.btn_send_email = Button(self, text='Odeslat email', command=self.send_email)
-        self.btn_send_email.grid(column=1, row=2)
-
-        self.btn_send_email_list.append(self.btn_send_email)
-
-    def add_email(self):
-        if self.btn_send_email in self.btn_send_email_list:
-            self.btn_send_email_list.clear()
+        if self.btn_send_email:
             self.btn_send_email.destroy()
 
-            self.btn_send_email = Button(self, text='Odeslat email', command=self.send_email)
-            self.btn_send_email.grid(column=1, row=len(self.rows)+3)
+        self.create_send_btn(2)
 
-            self.btn_send_email_list.append(self.btn_send_email)
+    def add_email(self):
+        if self.btn_send_email:
+            self.btn_send_email.destroy()
+            self.create_send_btn(len(self.rows)+3)
+
         if len(self.rows) < 4:
             row = EmailRow(self, self.remove_row, self.email_preview)
 
@@ -51,26 +47,29 @@ class EmailTab(Frame):
             row.grid(row=len(self.rows)
                      +1, column=0, columnspan=5, sticky="w")
 
+    def create_send_btn(self,row):
+        self.btn_send_email = Button(self, text='Odeslat email', command=self.send_email)
+        self.btn_send_email.grid(column=1, row=row)
 
     def remove_row(self, row):
-
         row.destroy()
-
         self.rows.remove(row)
-
         for i, r in enumerate(self.rows):
             r.grid_configure(row=i + 2)
             print(i)
+        if self.btn_send_email:
+            self.btn_send_email.destroy()
+        self.create_send_btn(len(self.rows) + 2)
 
     def send_email(self):
         self.reset_rows()
 
     def reset_rows(self):
-        self.default_row()
         for tab in self.rows:
-            for widget in tab.winfo_children():
-                widget.destroy()
+            tab.destroy()
+
         self.rows.clear()
+        self.default_row()
 
     def email_preview(self,row):
         if row in self.rows:
