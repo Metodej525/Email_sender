@@ -1,5 +1,4 @@
-from os.path import exists
-from tkinter import Frame, Button, Entry, Label
+from tkinter import Frame, Button, Entry, Label, StringVar
 import tkinter as tk
 import tkinter.messagebox
 
@@ -9,9 +8,16 @@ class EmailTab(Frame):
         self.rows = []
         self.root = root
 
+        self.search_email_var = StringVar()
+        self.search_email_var.trace_add("write", self.on_search_change)
+
+        self.search_date_var = StringVar()
+        self.search_date_var.trace_add("write", self.on_search_change)
+
         self.btn_send_email = None
         self.toolbox()
         self.default_row()
+
 
     def toolbox(self):
         Label(self,text='Email').grid(column=0,row=0,pady=5,padx=5)
@@ -21,7 +27,8 @@ class EmailTab(Frame):
         btn_add_email = Button(self,text='add',command=self.add_email)
         btn_add_email.grid(column=5,row=1,sticky="w")
 
-        row = EmailRow(self, self.remove_row, self.email_preview)
+        row = EmailRow(self, self.remove_row,
+                       self.email_preview,)
         row.grid(row=len(self.rows)
                      + 1, column=0, columnspan=5, sticky="w")
         self.rows.append(row)
@@ -40,9 +47,7 @@ class EmailTab(Frame):
 
         if len(self.rows) < 5:
             row = EmailRow(self, self.remove_row, self.email_preview)
-
             self.rows.append(row)
-
             row.grid(row=len(self.rows)
                      +1, column=0, columnspan=5, sticky="w")
 
@@ -82,8 +87,12 @@ class EmailTab(Frame):
         email_preview_popup.wm_title("🔎")
         tk.Label(email_preview_popup, text=label_text).pack()
 
-    def live_search(self,excel_search,excel_load):
-        pass
+    def on_search_change(self, *args):
+        self.live_search()
+
+    def live_search(self):
+        print('hehe')
+
     @staticmethod
     def pop_up_window(title,text):
         tkinter.messagebox.showinfo(title=title,message=text)
@@ -92,10 +101,10 @@ class EmailRow(Frame):
     def __init__(self, parent, remove_callback, preview_callback):
         super().__init__(parent)
 
-        self.entry_email = Entry(self)
+        self.entry_email = Entry(self, textvariable=parent.search_email_var)
         self.entry_email.grid(column=0, row=0,padx=5,pady=5)
 
-        self.entry_date = Entry(self)
+        self.entry_date = Entry(self, textvariable=parent.search_date_var)
         self.entry_date.grid(column=1, row=0,padx=15,pady=5)
 
         btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
