@@ -12,6 +12,8 @@ class EmailTab(Frame):
         self.success_excel_load , self.df = excel_load(self.config)
         self.btn_send_email = None
 
+        self.root.bind("<Configure>", self._on_window_move)
+
         self.toolbox()
         self.default_row()
 
@@ -89,9 +91,23 @@ class EmailTab(Frame):
             if len(email_val) >= 3:
                 self.live_search(email_val,row)
 
+    def _on_window_move(self, event):
+        if hasattr(self, "dropdown") and self.dropdown and hasattr(self, "active_row"):
+            row = self.active_row
+
+            try:
+                x = row.entry_email.winfo_rootx()
+                y = row.entry_email.winfo_rooty() + row.entry_email.winfo_height()
+                self.dropdown.geometry(f"+{x}+{y}")
+            except:
+                pass  # když row už neexistuje
     def live_search(self, email_val, row):
         values = self.excel_search(email_val, self.success_excel_load, self.df)
-
+        stripped_values_list = []
+        self.active_row = row
+        for row_data in values:
+            stripped_values = ', '.join(map(str, row_data))
+            stripped_values_list.append(stripped_values)
         # zruš starý dropdown
         if hasattr(self, "dropdown") and self.dropdown:
             self.dropdown.destroy()
@@ -107,13 +123,18 @@ class EmailTab(Frame):
         self.dropdown.geometry(f"+{x}+{y}")
 
         lb = Listbox(self.dropdown, width=80,height=min(5, len(values)))
-        lb.place(x=row.entry_email.winfo_x(),
-                 y=row.entry_email.winfo_y() + row.entry_email.winfo_height())
-        self.root.bind("<Configure>", lambda e: self.dropdown.destroy() if hasattr(self, "dropdown") else None)
+        lb.pack()
 
-        for val in values[:5]:
+        for val in stripped_values_list[:5]:
             lb.insert(tk.END, val)
+        lb.bind('<Double-Button-1>', self.on_select)
+    def on_select(self, event):
+        lb = event.widget  # Listbox
+        selection = lb.curselection()
 
+        if selection:
+            value = lb.get(selection[0])
+            print(value)
     @staticmethod
     def pop_up_window(title,text):
         tkinter.messagebox.showinfo(title=title,message=text)
