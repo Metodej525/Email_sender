@@ -1,23 +1,19 @@
-from tkinter import Frame, Button, Entry, Label, StringVar
+from tkinter import Frame, Button, Entry, Label, StringVar, Listbox
 import tkinter as tk
 import tkinter.messagebox
 
 class EmailTab(Frame):
-    def __init__(self,notebook,root):
+    def __init__(self,notebook,root,excel_search,config,excel_load):
         super().__init__(notebook)
         self.rows = []
         self.root = root
-
-        self.search_email_var = StringVar()
-        self.search_email_var.trace_add("write", self.on_search_change)
-
-        self.search_date_var = StringVar()
-        self.search_date_var.trace_add("write", self.on_search_change)
-
+        self.config = config
+        self.excel_search = excel_search
+        self.success_excel_load , self.df = excel_load(self.config)
         self.btn_send_email = None
+
         self.toolbox()
         self.default_row()
-
 
     def toolbox(self):
         Label(self,text='Email').grid(column=0,row=0,pady=5,padx=5)
@@ -87,11 +83,36 @@ class EmailTab(Frame):
         email_preview_popup.wm_title("🔎")
         tk.Label(email_preview_popup, text=label_text).pack()
 
-    def on_search_change(self, *args):
-        self.live_search()
+    def on_search_change(self,row):
+        if row in self.rows:
+            email_val = str(row.entry_email.get())
+            if len(email_val) >= 3:
+                self.live_search(email_val,row)
 
-    def live_search(self):
-        print('hehe')
+    def live_search(self, email_val, row):
+        values = self.excel_search(email_val, self.success_excel_load, self.df)
+
+        # zruš starý dropdown
+        if hasattr(self, "dropdown") and self.dropdown:
+            self.dropdown.destroy()
+
+        # vytvoř nový dropdown
+        self.dropdown = tk.Toplevel(self)
+        self.dropdown.wm_overrideredirect(True)  # bez okna
+
+        # pozice pod Entry
+        x = row.entry_email.winfo_rootx()
+        y = row.entry_email.winfo_rooty() + row.entry_email.winfo_height()
+
+        self.dropdown.geometry(f"+{x}+{y}")
+
+        lb = Listbox(self.dropdown, width=80,height=min(5, len(values)))
+        lb.place(x=row.entry_email.winfo_x(),
+                 y=row.entry_email.winfo_y() + row.entry_email.winfo_height())
+        self.root.bind("<Configure>", lambda e: self.dropdown.destroy() if hasattr(self, "dropdown") else None)
+
+        for val in values[:5]:
+            lb.insert(tk.END, val)
 
     @staticmethod
     def pop_up_window(title,text):
@@ -100,12 +121,20 @@ class EmailTab(Frame):
 class EmailRow(Frame):
     def __init__(self, parent, remove_callback, preview_callback):
         super().__init__(parent)
+        self._after_id = None
+        self.search_email_var = StringVar()
 
-        self.entry_email = Entry(self, textvariable=parent.search_email_var)
+        def trace_callback(*args):
+            if self._after_id:
+                self.after_cancel(self._after_id)
+            self._after_id = self.after(200, lambda: parent.on_search_change(self))
+
+        self.search_email_var.trace_add("write", trace_callback)
+
+        self.entry_email = Entry(self, textvariable=self.search_email_var)
         self.entry_email.grid(column=0, row=0,padx=5,pady=5)
 
-        self.entry_date = Entry(self, textvariable=parent.search_date_var)
-        self.entry_date.grid(column=1, row=0,padx=15,pady=5)
+        Label(self,text='hehe').grid(column=1, row=0,padx=15,pady=5)
 
         btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
         btn_delete.grid(column=2, row=0)

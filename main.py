@@ -16,26 +16,26 @@ from gui.email_preview_window import EmailPreviewTab
 from utils import safe_write_config
 from logic.signature_manager import save_signature,load_signature_data
 from logic.email_manager import send_email, load_email_details
-from logic.excel_manager import excel_path_load, excel_search
+from logic.excel_manager import excel_path_load, excel_search, excel_load
 
 #config.ini nacteni
-config= configparser.ConfigParser()
+config = configparser.ConfigParser()
 config.read('config.ini', encoding="cp1250")
 
 #nacteni zpravy pro budouci upravy
 message = config.get(section="EMAIL",option="body")
-#cesta k excel souboru
-excel_path=config.get(section="EXCEL",option='path')
+
+
 
 root = Tk()
 notebook = ttk.Notebook(root)
 notebook.pack(expand=True,fill='both')
 root.title(":)")
 
-email_tab = EmailTab(notebook,root)
+email_tab = EmailTab(notebook,root,excel_search,config,excel_load)
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
 email_preview_tab = EmailPreviewTab(notebook,load_email_details,config)
-excel_tab = ExcelTab(notebook,excel_path,excel_path_load,safe_write_config,config)
+excel_tab = ExcelTab(notebook,excel_path_load,safe_write_config,config, excel_load)
 
 
 notebook.add(email_tab, text="Email")
