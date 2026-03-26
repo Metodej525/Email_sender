@@ -4,8 +4,11 @@ import unicodedata
 
 def excel_load(config):
     path = config.get("EXCEL", "path")
-    df = pd.read_excel(path)
-    return True, df
+    try:
+        df = pd.read_excel(path)
+        return True, df
+    except Exception as e:
+        raise RuntimeError(f"Chyba při načítání {path}") from e
 def remove_diacritics(text):
     if not isinstance(text, str):
         return text
@@ -13,8 +16,8 @@ def remove_diacritics(text):
     normalized = unicodedata.normalize('NFD', text)
     # Vrátí jen znaky, které nejsou "Mn" (Mark, Nonspacing = diakritika)
     return ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
-def excel_search(value, success, df):
-    if success:
+def excel_search(value,df):
+    if df is not None:
         slice_df = df[df['Příjmení'].apply(remove_diacritics).str.lower().str.startswith(value, na=False)].drop_duplicates().head(5)
         return list(zip(slice_df['Příjmení'],
                         slice_df['Jméno'],

@@ -11,7 +11,7 @@ class EmailTab(Frame):
         self.root = root                       # reference na root (kvůli Toplevel, bindům)
         self.config = config
         self.excel_search = excel_search       # callback pro live search
-        self.success_excel_load, self.df = excel_load(self.config)
+        self.df = excel_load(self.config)
         self.btn_send_email = None
 
         # --- global event bindings ---
@@ -166,7 +166,7 @@ class EmailTab(Frame):
 
     def live_search(self, email_val, row):
         """Vykreslí autocomplete dropdown"""
-        values = self.excel_search(email_val, self.success_excel_load, self.df)
+        values = self.excel_search(email_val, self.df)
 
         self.root.bind("<Button-1>", self._on_click_outside)
         self.active_row = row
@@ -253,7 +253,7 @@ class EmailRow(Frame):
         self.entry_email = Entry(self, textvariable=self.search_email_var)
         self.entry_email.grid(column=0, row=0, padx=5, pady=5)
 
-        # Label – placeholder, můžeš tam dát např. datum vypršení
+        # Label – placeholder
         Label(self, text='hehe').grid(column=1, row=0, padx=15, pady=5)
 
         # Tlačítko pro odstranění řádku
