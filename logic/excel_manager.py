@@ -6,7 +6,7 @@ def excel_load(config):
     path = config.get("EXCEL", "path")
     try:
         df = pd.read_excel(path)
-        return True, df
+        return df
     except Exception as e:
         raise RuntimeError(f"Chyba při načítání {path}") from e
 def remove_diacritics(text):
