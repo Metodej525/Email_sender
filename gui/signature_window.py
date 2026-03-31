@@ -33,15 +33,9 @@ class SignatureTab(Frame):
     #funkce pro button ulozit podpis, ulozi data do slovniku a zavola funkci pro ulozeni do configu + temp_label pro info
     #ze s email ulozil
     def on_save(self):
-        data = {
-            "name": self.name_entry.get(),
-            "telephone": self.telephone_entry.get(),
-            "department": self.department_entry.get(),
-            "position": self.position_entry.get(),
-            'login': self.login_entry.get(),
-            'email':self.email_entry.get()
-        }
-
+        data = {}
+        for key,entry in self.dict_entries.items():
+            data[key] = entry.get()
         self.save_signature(self.config, data, self.safe_write_config)
         self.signature_data = self.load_signature_data(self.config)
 
