@@ -35,7 +35,7 @@ root.title(":)")
 email_tab = EmailTab(notebook,root,excel_search,config,excel_load)
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
 email_preview_tab = EmailPreviewTab(notebook,load_email_details,config)
-excel_tab = ExcelTab(notebook,excel_path_load,safe_write_config,config, excel_load)
+excel_tab = ExcelTab(notebook,excel_path_load,safe_write_config,config, email_tab.df,excel_load)
 
 
 notebook.add(email_tab, text="Email")

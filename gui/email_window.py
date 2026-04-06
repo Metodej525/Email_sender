@@ -11,7 +11,7 @@ class EmailTab(Frame):
         self.root = root                       # reference na root (kvůli Toplevel, bindům)
         self.config = config
         self.excel_search = excel_search       # callback pro live search
-        self.df = excel_load(self.config)
+        self.df,self.excel_load_error = excel_load(self.config)
         self.btn_send_email = None
 
         # --- global event bindings ---

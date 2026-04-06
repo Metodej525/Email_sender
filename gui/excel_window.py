@@ -1,10 +1,12 @@
 from tkinter import Button, Label, Frame, Entry
 
 class ExcelTab(Frame):
-    def __init__(self,notebook,excel_path_load,safe_write_config, config, excel_load):
+    def __init__(self,notebook,excel_path_load,safe_write_config, config, df, excel_load):
         super().__init__(notebook)
         # self.reset_email_tab = reset_tab
+
         self.excel_load = excel_load
+        self.df = df
         self.excel_path_load = excel_path_load
         self.safe_write_config = safe_write_config
         self.config = config
@@ -23,17 +25,27 @@ class ExcelTab(Frame):
 
         self.load_excel()
     def load_excel(self):
-        try:
-            df = self.excel_load(self.config)
-            excel_success_label = Label(self, text=f'Excel soubor úspěšně načten')
-            excel_success_label.grid(column=1, row=2,sticky="nw",padx=5, pady=5)
-            self.after(5000, excel_success_label.destroy)
-            return True,df
-        except Exception as e:
-            excel_error_label = Label(self, text=f'Chyba při načítání Excelu: {e}')
+        self.excel_load(self.config)
+        if self.df is None:
+            self.df, self.excel_load_error = self.excel_load(self.config)
+            excel_error_label = Label(self, text=f'Chyba při načítání Excelu: {self.excel_load_error}')
             excel_error_label.grid(column=1, row=2,sticky="nw",padx=5, pady=5)
             self.after(5000, excel_error_label.destroy)
-            return False, None
+
+        excel_error_label = Label(self, text=f'Chyba při načítání Excelu: {self.excel_load_error}')
+        excel_error_label.grid(column=1, row=2,sticky="nw",padx=5, pady=5)
+        self.after(5000, excel_error_label.destroy)
+        #
+        # try:
+        #     excel_success_label = Label(self, text=f'Excel soubor úspěšně načten')
+        #     excel_success_label.grid(column=1, row=2,sticky="nw",padx=5, pady=5)
+        #     self.after(5000, excel_success_label.destroy)
+        #     return True, self.df
+        # except Exception as e:
+        #     excel_error_label = Label(self, text=f'Chyba při načítání Excelu: {e}')
+        #     excel_error_label.grid(column=1, row=2,sticky="nw",padx=5, pady=5)
+        #     self.after(5000, excel_error_label.destroy)
+        #     return False, None
     def renew_excel_path(self):
         path = self.path_entry.get()
         self.excel_path_load(self.config,path,self.safe_write_config)
