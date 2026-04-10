@@ -3,7 +3,7 @@ import tkinter as tk
 import tkinter.messagebox
 
 class EmailTab(Frame):
-    def __init__(self, notebook, root, excel_search, config, excel_load):
+    def __init__(self, notebook, root, excel_search, config, df):
         super().__init__(notebook)
 
         # --- state ---
@@ -11,7 +11,7 @@ class EmailTab(Frame):
         self.root = root                       # reference na root (kvůli Toplevel, bindům)
         self.config = config
         self.excel_search = excel_search       # callback pro live search
-        self.df,self.excel_load_error = excel_load(self.config)
+        self.df = df
         self.btn_send_email = None
 
         # --- global event bindings ---
@@ -83,7 +83,7 @@ class EmailTab(Frame):
     def send_email(self):
         """Potvrzení a odeslání emailu"""
         if tkinter.messagebox.askquestion(title='', message='Odeslat email?') == 'yes':
-            self.pop_up_window('', 'Email byl odeslán')
+            self._pop_up_window('', 'Email byl odeslán')
             self.reset_rows()
 
     def reset_rows(self):
@@ -209,7 +209,7 @@ class EmailTab(Frame):
             print(value)
 
     @staticmethod
-    def pop_up_window(title, text):
+    def _pop_up_window(title, text):
         tkinter.messagebox.showinfo(title=title, message=text)
 
 class EmailRow(Frame):
@@ -217,7 +217,7 @@ class EmailRow(Frame):
     Reprezentuje jeden řádek v EmailTab.
     Obsahuje:
     - Entry pro email s live search
-    - Label (může být datum, stav, nebo placeholder)
+    - Label pro datum - automaticky se načte po zvolení z dropdown menu
     - Tlačítko pro smazání řádku
     - Tlačítko pro náhled / preview emailu
     """

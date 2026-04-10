@@ -1,4 +1,4 @@
-from tkinter import Button, Entry, Label, Frame
+from tkinter import Button, Entry, Label, Frame, messagebox
 
 class SignatureTab(Frame):
     FIELDS = [
@@ -38,8 +38,7 @@ class SignatureTab(Frame):
             data[key] = entry.get()
         self.save_signature(self.config, data, self.safe_write_config)
         self.signature_data = self.load_signature_data(self.config)
-
-        temp_label = Label(self, text='podpis uložen')
-        temp_label.grid(column=0, row=7, columnspan=2)
-        self.after(2000, temp_label.destroy)
-
+        self._pop_up_window('','podpis uložen')
+    @staticmethod
+    def _pop_up_window(title, text):
+        messagebox.showinfo(title=title, message=text)

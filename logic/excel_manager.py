@@ -8,7 +8,8 @@ def excel_load(config):
         df = pd.read_excel(path)
         return df, None
     except Exception as e:
-        error = print(f"Chyba při načítání {path}: {e}")
+        print(f"Chyba při načítání {path}: {e}")
+        error = f"Chyba při načítání {path}: {e}"
         return None, error
 
 def remove_diacritics(text):
