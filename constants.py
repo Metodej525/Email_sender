@@ -1,0 +1,23 @@
+ROOT_TITLE = ':)'
+CONFIG_PATH = 'config.ini'
+CONFIG_ENCODING = 'cp1250'
+
+EMAIL_SECTION = 'EMAIL'
+EMAIL_BODY = 'body'
+EMAIL_SUBJECT = 'subject'
+EMAIL_SENDER = 'sender_email'
+EMAIL_SMTP_SERVER = 'smtp_server'
+EMAIL_SMTP_PORT = 'smtp_port'
+
+SIGNATURE_SECTION = 'SIGNATURE'
+SIGNATURE_NAME = 'name'
+SIGNATURE_TELEPHONE = 'telephone'
+SIGNATURE_POSITION = 'position'
+SIGNATURE_DEPARTMENT = 'department'
+SIGNATURE_LOGIN = 'login'
+SIGNATURE_EMAIL = 'email'
+
+EXCEL_SECTION = 'EXCEL'
+EXCEL_PATH = 'path'
+
+

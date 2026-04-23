@@ -1,4 +1,5 @@
 from tkinter import Button, Label, Frame, Entry
+import constants as c
 
 class ExcelTab(Frame):
     def __init__(self, notebook, excel_path_load, safe_write_config, config, excel_load):
@@ -52,16 +53,16 @@ class ExcelTab(Frame):
         self.load_excel()
 
     def load_excel(self):
-        self.df, excel_load_error = self.excel_load(self.config)
-
-        if excel_load_error:
+        try:
+            self.df = self.excel_load(self.config.get(c.EXCEL_SECTION,c.EXCEL_PATH))
+        except Exception as e:
             excel_error_label = Label(
                 self,
-                text=f'Chyba při načítání Excelu: {excel_load_error}'
+                text=f'Chyba při načítání Excelu: {e}'
             )
             excel_error_label.grid(column=1, row=2, sticky="nw", padx=5, pady=5)
-
             self.after(5000, excel_error_label.destroy)
+
     def renew_excel_path(self):
         # získání cesty z inputu
         path = self.path_entry.get()

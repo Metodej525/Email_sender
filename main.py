@@ -9,28 +9,30 @@
 import configparser
 from tkinter import *
 from tkinter import ttk
-from gui.signature_window import SignatureTab
+
+from gui.email_preview_window import EmailPreviewTab
 from gui.email_window import EmailTab
 from gui.excel_window import ExcelTab
-from gui.email_preview_window import EmailPreviewTab
-from utils import safe_write_config
-from logic.signature_manager import save_signature,load_signature_data
-from logic.email_manager import send_email, load_email_details
+from gui.signature_window import SignatureTab
+from logic.email_manager import load_email_details
 from logic.excel_manager import excel_path_load, excel_search, excel_load
+from logic.signature_manager import save_signature, load_signature_data
+from utils import safe_write_config
+import constants as c
 
 #config.ini nacteni
 config = configparser.ConfigParser()
-config.read('config.ini', encoding="cp1250")
+config.read(filenames=c.CONFIG_PATH, encoding=c.CONFIG_ENCODING)
 
 #nacteni zpravy pro budouci upravy
-message = config.get(section="EMAIL",option="body")
+message = config.get(section=c.EMAIL_SECTION,option=c.EMAIL_BODY)
 
 
 
 root = Tk()
 notebook = ttk.Notebook(root)
 notebook.pack(expand=True,fill='both')
-root.title(":)")
+root.title(c.ROOT_TITLE)
 
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
 email_preview_tab = EmailPreviewTab(notebook,load_email_details,config )

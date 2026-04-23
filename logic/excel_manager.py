@@ -1,17 +1,11 @@
 import pandas as pd
 import unicodedata
+import constants as c
 
 
-def excel_load(config):
-    path = config.get("EXCEL", "path")
-    try:
-        df = pd.read_excel(path)
-        return df, None
-    except Exception as e:
-        print(f"Chyba při načítání {path}: {e}")
-        error = f"Chyba při načítání {path}: {e}"
-        return None, error
-
+def excel_load(path):
+    df = pd.read_excel(path)
+    return df
 def remove_diacritics(text):
     if not isinstance(text, str):
         return text
@@ -30,7 +24,9 @@ def excel_search(value,df):
 
     return None
 def excel_path_load(config,path,write_config):
-    if "EXCEL" not in config:
+    if c.EXCEL_SECTION not in config:
         raise ValueError("Chybí sekce EXCEL")
-    config.set("EXCEL", 'path', path)
+    config.set(c.EXCEL_SECTION, c.EXCEL_SECTION, path)
     write_config(config, "config.ini")
+def renew_excel_path():
+    pass
