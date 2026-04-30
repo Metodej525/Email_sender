@@ -34,7 +34,7 @@ class ExcelTab(Frame):
         self.path_entry.grid(column=0, row=0, sticky="nw", padx=5, pady=5)
 
         # načtení aktuální cesty z configu
-        excel_path = self.config.get("EXCEL", 'path')
+        excel_path = self.config.get(c.EXCEL_SECTION, c.EXCEL_PATH)
 
         # vložení cesty do inputu
         self.path_entry.insert(0, f'{excel_path}')
@@ -54,7 +54,7 @@ class ExcelTab(Frame):
 
     def load_excel(self):
         try:
-            self.df = self.excel_load(self.config.get(c.EXCEL_SECTION,c.EXCEL_PATH))
+            self.df = self.excel_load(self.config)
         except Exception as e:
             excel_error_label = Label(
                 self,

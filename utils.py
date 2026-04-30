@@ -1,6 +1,5 @@
 import os
 import tempfile
-import pandas as pd
 
 #atomicky zapis config.ini
 def safe_write_config(config, path):

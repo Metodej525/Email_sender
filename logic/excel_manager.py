@@ -1,11 +1,13 @@
-import pandas as pd
 import unicodedata
 import constants as c
-
-
-def excel_load(path):
-    df = pd.read_excel(path)
-    return df
+from Repository.excel_repository import excel_raw_load
+def excel_load(config):
+    filepath = config.get(c.EXCEL_SECTION,c.EXCEL_PATH)
+    try:
+        df = excel_raw_load(filepath)
+    except Exception as e:
+        #zaloguj chybu
+        raise
 def remove_diacritics(text):
     if not isinstance(text, str):
         return text
@@ -23,10 +25,10 @@ def excel_search(value,df):
                         slice_df['Platnost do'],))
 
     return None
-def excel_path_load(config,path,write_config):
+def excel_path_load(config,path,safe_write_config):
     if c.EXCEL_SECTION not in config:
         raise ValueError("Chybí sekce EXCEL")
-    config.set(c.EXCEL_SECTION, c.EXCEL_SECTION, path)
-    write_config(config, "config.ini")
+    config.set(c.EXCEL_SECTION, c.EXCEL_PATH, path)
+    safe_write_config(config, c.CONFIG_PATH)
 def renew_excel_path():
     pass
