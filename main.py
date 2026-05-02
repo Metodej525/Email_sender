@@ -14,9 +14,9 @@ from gui.email_preview_window import EmailPreviewTab
 from gui.email_window import EmailTab
 from gui.excel_window import ExcelTab
 from gui.signature_window import SignatureTab
-from logic.email_manager import load_email_details
-from logic.excel_manager import excel_path_load, excel_search, excel_load
-from logic.signature_manager import save_signature, load_signature_data
+from Service.email_service import load_email_details
+from Service.excel_service import excel_path_load, excel_search, excel_load
+from Service.signature_service import save_signature, load_signature_data
 from utils import safe_write_config
 import constants as c
 

@@ -10,12 +10,12 @@ def save_signature(config, data, write_config):
 
     write_config(config, c.CONFIG_PATH)
 def load_signature_data(config):
-    name = config.get('SIGNATURE', 'name', fallback='')
-    telephone = config.get('SIGNATURE', 'telephone', fallback='')
-    department = config.get('SIGNATURE', 'department', fallback='')
-    position = config.get('SIGNATURE', 'position', fallback='')
-    login = config.get('SIGNATURE', 'login', fallback='')
-    email = config.get('SIGNATURE', 'email', fallback='')
+    name = config.get(c.SIGNATURE_SECTION, c.SIGNATURE_NAME, fallback='')
+    telephone = config.get(c.SIGNATURE_SECTION, c.SIGNATURE_TELEPHONE, fallback='')
+    department = config.get(c.SIGNATURE_SECTION, c.SIGNATURE_DEPARTMENT, fallback='')
+    position = config.get(c.SIGNATURE_SECTION, c.SIGNATURE_POSITION, fallback='')
+    login = config.get(c.SIGNATURE_SECTION, c.SIGNATURE_LOGIN, fallback='')
+    email = config.get(c.SIGNATURE_SECTION, c.SIGNATURE_EMAIL, fallback='')
     return {'name':name,
             'department':department,
             'telephone':telephone,
