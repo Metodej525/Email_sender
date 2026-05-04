@@ -3,7 +3,7 @@ import tkinter as tk
 import tkinter.messagebox
 
 class EmailTab(Frame):
-    def __init__(self, notebook, root, excel_search, config, df):
+    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager):
         super().__init__(notebook)
 
         # --- state ---
@@ -13,6 +13,7 @@ class EmailTab(Frame):
         self.excel_search = excel_search       # callback pro live search
         self.df = df
         self.btn_send_email = None
+        self.selected_value_manager = selected_value_manager
 
         # --- global event bindings ---
         # reposition dropdown při pohybu okna
@@ -207,6 +208,8 @@ class EmailTab(Frame):
             self._close_dropdown()
             self.add_email()
             print(value)
+            self.selected_value_manager(value)
+
 
     @staticmethod
     def _pop_up_window(title, text):

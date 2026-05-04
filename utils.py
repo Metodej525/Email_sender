@@ -1,5 +1,7 @@
 import os
 import tempfile
+import unicodedata
+
 
 #atomicky zapis config.ini
 def safe_write_config(config, path):
@@ -29,3 +31,11 @@ def safe_write_log(log,path):
         temp_name = tmp.name
 
     os.replace(temp_name, path)
+
+def remove_diacritics(text):
+    if not isinstance(text, str):
+        return text
+    # Normalizace na NFD (rozdělí znaky + diakritiku)
+    normalized = unicodedata.normalize('NFD', text)
+    # Vrátí jen znaky, které nejsou "Mn" (Mark, Nonspacing = diakritika)
+    return ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
