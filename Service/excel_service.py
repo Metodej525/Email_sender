@@ -14,13 +14,21 @@ def excel_load(config):
 def excel_search(value,df):
     if df is not None:
         slice_df = df[df['Příjmení'].apply(remove_diacritics).str.lower().str.startswith(value, na=False)].drop_duplicates().head(5)
+        if slice_df.empty:
+            slice_df = df[df['Login'].apply(remove_diacritics).str.lower().str.startswith(value,
+                                                                                             na=False)].drop_duplicates().head(
+                5)
+            if slice_df.empty:
+                slice_df = df[df['Jméno'].apply(remove_diacritics).str.lower().str.startswith(value,
+                                                                                                 na=False)].drop_duplicates().head(
+                    5)
         return list(zip(slice_df['Příjmení'],
                         slice_df['Jméno'],
                         slice_df['Login'],
                         slice_df['Typ cert.'],
                         slice_df['Platnost do'],))
+    return []
 
-    return None
 def excel_path_load(config,path,safe_write_config):
     if c.EXCEL_SECTION not in config:
         raise ValueError("Chybí sekce EXCEL")

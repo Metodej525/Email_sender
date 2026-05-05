@@ -165,50 +165,54 @@ class EmailTab(Frame):
 
         self._close_dropdown()
 
-    def live_search(self, email_val, row):
+    def live_search(self, entry_val, row):
         """Vykreslí autocomplete dropdown"""
-        values = self.excel_search(email_val, self.df)
+        values = self.excel_search(entry_val, self.df)
+        if values:
+            self.root.bind("<Button-1>", self._on_click_outside)
+            self.active_row = row
 
-        self.root.bind("<Button-1>", self._on_click_outside)
-        self.active_row = row
+            # transformace dat do stringu
+            stripped_values_list = [
+                ', '.join(map(str, row_data)) for row_data in values
+            ]
 
-        # transformace dat do stringu
-        stripped_values_list = [
-            ', '.join(map(str, row_data)) for row_data in values
-        ]
+            # zrušení starého dropdownu
+            if hasattr(self, "dropdown") and self.dropdown:
+                self.dropdown.destroy()
 
-        # zrušení starého dropdownu
-        if hasattr(self, "dropdown") and self.dropdown:
-            self.dropdown.destroy()
+            # vytvoření nového dropdownu
+            self.dropdown = tk.Toplevel(self.root)
+            self.dropdown.wm_overrideredirect(True)
 
-        # vytvoření nového dropdownu
-        self.dropdown = tk.Toplevel(self.root)
-        self.dropdown.wm_overrideredirect(True)
+            # pozice pod Entry
+            x = row.entry_email.winfo_rootx()
+            y = row.entry_email.winfo_rooty() + row.entry_email.winfo_height()
+            self.dropdown.geometry(f"+{x}+{y}")
 
-        # pozice pod Entry
-        x = row.entry_email.winfo_rootx()
-        y = row.entry_email.winfo_rooty() + row.entry_email.winfo_height()
-        self.dropdown.geometry(f"+{x}+{y}")
+            lb = Listbox(self.dropdown, width=80, height=min(5, len(values)))
+            lb.pack()
 
-        lb = Listbox(self.dropdown, width=80, height=min(5, len(values)))
-        lb.pack()
+            for val in stripped_values_list[:5]:
+                lb.insert(tk.END, val)
 
-        for val in stripped_values_list[:5]:
-            lb.insert(tk.END, val)
-
-        lb.bind('<Double-Button-1>', self.on_select)
+            lb.bind('<Double-Button-1>', self.on_select)
 
     def on_select(self, event):
-        """Výběr hodnoty z dropdownu"""
         lb = event.widget
         selection = lb.curselection()
 
         if selection:
             value = lb.get(selection[0])
+
+            row = self.active_row  # ← uložíš si referenci
+            if self.rows.index(self.active_row) == len(self.rows) -1:
+                self.add_email()
             self._close_dropdown()
-            self.add_email()
-            print(value)
-            self.selected_value_manager(value)
+
+            email, exp_date, exp_time = self.selected_value_manager(value)
+
+            row.safe_set_values(email, exp_date, exp_time)
 
 
     @staticmethod
@@ -230,21 +234,22 @@ class EmailRow(Frame):
 
         # --- internal state ---
         self._after_id = None               # uchovává ID 'after' pro debounce
+        self.is_updating = False  # flag pro regulaci trace_callback
         self.search_email_var = StringVar() # propojení Entry ↔ live search
 
         # ------------------------------
         # Debounce callback pro live search
         # ------------------------------
         def trace_callback(*args):
-            """
-            Triggerováno při každé změně Entry.
-            Debounce – pokud už byl naplánován after, zruší ho a naplánuje nový.
-            """
+            if self.is_updating:   # ← tady ho kontroluješ
+                return
+
             if self._after_id:
                 self.after_cancel(self._after_id)
-            # zavolá parent.on_search_change po 200 ms, pokud uživatel nepíše dál
-            self._after_id = self.after(200, lambda: parent.on_search_change(self))
 
+            self._after_id = self.after(
+                200, lambda: parent.on_search_change(self)
+            )
         # připojení callbacku na změnu StringVar
         self.search_email_var.trace_add("write", trace_callback)
 
@@ -257,7 +262,8 @@ class EmailRow(Frame):
         self.entry_email.grid(column=0, row=0, padx=5, pady=5)
 
         # Label – placeholder
-        Label(self, text='hehe').grid(column=1, row=0, padx=15, pady=5)
+        self.label_date = Label(self, text='')
+        self.label_date.grid(column=1, row=0, padx=15, pady=5)
 
         # Tlačítko pro odstranění řádku
         # Volá callback parentu, který řádek smaže z listu a přepočítá grid
@@ -268,3 +274,13 @@ class EmailRow(Frame):
         # Volá parent callback, např. otevře popup s informacemi
         btn_preview = Button(self, text="🔎", command=lambda: preview_callback(self))
         btn_preview.grid(column=3, row=0)
+
+    def safe_set_values(self, email, exp_date, exp_time):
+        self.is_updating = True
+        try:
+            self.entry_email.delete(0, tk.END)
+            self.entry_email.insert(0, email)
+
+            self.label_date.config(text=f"{exp_date} {exp_time}")
+        finally:
+            self.is_updating = False
