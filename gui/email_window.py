@@ -1,9 +1,10 @@
 from tkinter import Frame, Button, Entry, Label, StringVar, Listbox
 import tkinter as tk
 import tkinter.messagebox
+from tkhtmlview import HTMLLabel
 
 class EmailTab(Frame):
-    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager):
+    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager, specific_email_preview,html_converter):
         super().__init__(notebook)
 
         # --- state ---
@@ -14,7 +15,8 @@ class EmailTab(Frame):
         self.df = df
         self.btn_send_email = None
         self.selected_value_manager = selected_value_manager
-
+        self.specific_email_preview = specific_email_preview
+        self.html_converter = html_converter
         # --- global event bindings ---
         # reposition dropdown při pohybu okna
         self.root.bind("<Configure>", self._on_window_move)
@@ -97,15 +99,21 @@ class EmailTab(Frame):
 
     def email_preview(self, row):
         """Debug preview (index řádku)"""
+        exp_date = row.exp_date
+        exp_time = row.exp_time
+        text = self.specific_email_preview(self.config, exp_date, exp_time)
+        converted_text = self.html_converter(text)
+
         if row in self.rows:
-            label_text = str(self.rows.index(row))
+            label_text = converted_text
         else:
-            label_text = '-1'
+            label_text = ':('
 
         popup = tk.Toplevel(self.root)
         popup.wm_title("🔎")
-        tk.Label(popup, text=label_text).pack()
-
+        HTMLLabel(popup, html=label_text).pack()
+        # self.exp_time = []
+        # self.exp_date = []
     def on_search_change(self, row):
         """Trigger live search (debounced z EmailRow)"""
         if row in self.rows:
@@ -205,7 +213,7 @@ class EmailTab(Frame):
         if selection:
             value = lb.get(selection[0])
 
-            row = self.active_row  # ← uložíš si referenci
+            row = self.active_row
             if self.rows.index(self.active_row) == len(self.rows) -1:
                 self.add_email()
             self._close_dropdown()
@@ -236,12 +244,13 @@ class EmailRow(Frame):
         self._after_id = None               # uchovává ID 'after' pro debounce
         self.is_updating = False  # flag pro regulaci trace_callback
         self.search_email_var = StringVar() # propojení Entry ↔ live search
-
+        self.exp_date = None
+        self.exp_time = None
         # ------------------------------
         # Debounce callback pro live search
         # ------------------------------
         def trace_callback(*args):
-            if self.is_updating:   # ← tady ho kontroluješ
+            if self.is_updating:
                 return
 
             if self._after_id:
@@ -278,6 +287,8 @@ class EmailRow(Frame):
     def safe_set_values(self, email, exp_date, exp_time):
         self.is_updating = True
         try:
+            self.exp_date = exp_date
+            self.exp_time = exp_time
             self.entry_email.delete(0, tk.END)
             self.entry_email.insert(0, email)
 

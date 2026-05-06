@@ -1,6 +1,7 @@
 import configparser
 import smtplib
 from email.mime.text import MIMEText
+import constants as c
 
 config= configparser.ConfigParser()
 config.read('config.ini', encoding="cp1250")
