@@ -45,18 +45,18 @@ notebook.add(email_preview_tab,text='Náhled emialu')
 notebook.add(signature_tab, text="Signature")
 notebook.add(excel_tab, text="Excel")
 
+TAB_FIELDS = {
+    email_tab: '500x300',
+    email_preview_tab: '800x600',
+    signature_tab: '300x200',
+    excel_tab: '600x300'
+}
 def resize_tab(event):
     tab_id = event.widget.select()
     tab = event.widget.nametowidget(tab_id)
 
-    if tab == email_tab:
-        root.geometry("500x300")
-    elif tab == email_preview_tab:
-        root.geometry("800x600")
-    elif tab == signature_tab:
-        root.geometry('300x200')
-    elif tab == excel_tab:
-        root.geometry("600x200")
+    if tab in TAB_FIELDS:
+        root.geometry(TAB_FIELDS[tab])
 
 notebook.bind("<<NotebookTabChanged>>", resize_tab)
 root.geometry("500x150")
