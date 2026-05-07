@@ -1,21 +1,19 @@
-import configparser
 import smtplib
 from email.mime.text import MIMEText
 import constants as c
 
-config= configparser.ConfigParser()
-config.read('config.ini', encoding="cp1250")
+
 
 # SMTP Configuration
-SMTP_SERVER = "posta.ikem.cz"  # Replace with actual SMTP server
-SMTP_PORT = 587  # 465 for SSL, 587 for TLS
-USERNAME = "your_email@example.com"
-PASSWORD = "your_password"
+SMTP_SERVER = c.EMAIL_SMTP_SERVER  # Replace with actual SMTP server
+SMTP_PORT = int(c.EMAIL_SMTP_PORT)  # 465 for SSL, 587 for TLS
+USERNAME = ''
+PASSWORD = ''
 
 # Email Details
-sender_email = ""
+sender_email = c.EMAIL_SENDER
 receiver_email = ""
-subject = ""
+subject = c.EMAIL_SUBJECT
 html_body = ""
 
 # Create the email
@@ -26,8 +24,6 @@ message["To"] = receiver_email
 
 # Send the email
 with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-    server.starttls()  # Secure connection
-    #server.login(USERNAME, PASSWORD)
     server.sendmail(sender_email, receiver_email, message.as_string())
 
 print("HTML email sent successfully!")
