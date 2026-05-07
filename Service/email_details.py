@@ -6,8 +6,8 @@ import constants as c
 
 # SMTP Configuration
 def email_details(receiver, body):
-    SMTP_SERVER = c.EMAIL_SMTP_SERVER  # Replace with actual SMTP server
-    SMTP_PORT = int(c.EMAIL_SMTP_PORT)  # 465 for SSL, 587 for TLS
+    SMTP_SERVER = c.EMAIL_SMTP_SERVER
+    SMTP_PORT = int(c.EMAIL_SMTP_PORT)
     USERNAME = ''
     PASSWORD = ''
 
@@ -18,7 +18,7 @@ def email_details(receiver, body):
     html_body = body
 
     # Create the email
-    message = MIMEText(html_body, "html")  # Change "plain" to "html"
+    message = MIMEText(html_body, "html")
     message["Subject"] = subject
     message["From"] = sender_email
     message["To"] = receiver_email
