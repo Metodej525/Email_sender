@@ -14,7 +14,7 @@ from gui.email_preview_window import EmailPreviewTab
 from gui.email_window import EmailTab
 from gui.excel_window import ExcelTab
 from gui.signature_window import SignatureTab
-from Service.email_service import load_email_details, selected_value_manager, specific_email_preview, html_converter
+from Service.email_service import load_email_details, selected_value_manager, specific_email_preview, html_converter, email_sender
 from Service.excel_service import excel_path_load, excel_search, excel_load
 from Service.signature_service import save_signature, load_signature_data
 from utils import safe_write_config
@@ -37,7 +37,7 @@ root.title(c.ROOT_TITLE)
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
 email_preview_tab = EmailPreviewTab(notebook,load_email_details,html_converter,config )
 excel_tab = ExcelTab(notebook,excel_path_load,safe_write_config,config,excel_load)
-email_tab = EmailTab(notebook,root,excel_search,config,excel_tab.df,selected_value_manager,specific_email_preview,html_converter)
+email_tab = EmailTab(notebook,root,excel_search,config,excel_tab.df,selected_value_manager,specific_email_preview,html_converter, email_sender)
 
 
 notebook.add(email_tab, text="Email")

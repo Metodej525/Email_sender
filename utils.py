@@ -9,7 +9,7 @@ def safe_write_config(config, path):
 
     with tempfile.NamedTemporaryFile(
             mode="w",
-            encoding="cp1250",
+            encoding="UTF-8",
             delete=False,
             dir=dir_name
     ) as tmp:
@@ -23,7 +23,7 @@ def safe_write_log(log,path):
 
     with tempfile.NamedTemporaryFile(
         mode='',
-        encoding='',
+        encoding='UTF-8',
         delete=False,
         dir=dir_name
     ) as tmp:

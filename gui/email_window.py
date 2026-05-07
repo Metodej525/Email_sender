@@ -4,7 +4,7 @@ import tkinter.messagebox
 from tkhtmlview import HTMLLabel
 
 class EmailTab(Frame):
-    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager, specific_email_preview,html_converter):
+    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager, specific_email_preview,html_converter,email_sender):
         super().__init__(notebook)
 
         # --- state ---
@@ -17,6 +17,7 @@ class EmailTab(Frame):
         self.selected_value_manager = selected_value_manager
         self.specific_email_preview = specific_email_preview
         self.html_converter = html_converter
+        self.email_sender = email_sender
         # --- global event bindings ---
         # reposition dropdown při pohybu okna
         self.root.bind("<Configure>", self._on_window_move)
@@ -32,8 +33,8 @@ class EmailTab(Frame):
 
     def toolbox(self):
         """Header labels"""
-        Label(self, text='Email').grid(column=0, row=0, pady=5, padx=5)
-        Label(self, text='Datum vypršení certifikátu').grid(column=1, row=0, pady=5, padx=5)
+        Label(self, text='Email').grid(column=0, row=0, pady=5, padx=25)
+        Label(self, text='Datum vypršení certifikátu').grid(column=1, row=0, pady=5, padx=75)
 
     def default_row(self):
         """Inicializuje první (defaultní) řádek"""
@@ -87,6 +88,7 @@ class EmailTab(Frame):
         """Potvrzení a odeslání emailu"""
         if tkinter.messagebox.askquestion(title='', message='Odeslat email?') == 'yes':
             self._pop_up_window('', 'Email byl odeslán')
+            self.email_sender(self.rows)
             self.reset_rows()
 
     def reset_rows(self):
@@ -111,7 +113,7 @@ class EmailTab(Frame):
 
         popup = tk.Toplevel(self.root)
         popup.wm_title("🔎")
-        HTMLLabel(popup, html=label_text).pack()
+        HTMLLabel(popup, html=label_text,height=30,padx=25,pady=25).pack()
         # self.exp_time = []
         # self.exp_date = []
     def on_search_change(self, row):
@@ -198,7 +200,7 @@ class EmailTab(Frame):
             y = row.entry_email.winfo_rooty() + row.entry_email.winfo_height()
             self.dropdown.geometry(f"+{x}+{y}")
 
-            lb = Listbox(self.dropdown, width=80, height=min(5, len(values)))
+            lb = Listbox(self.dropdown, width=50, height=min(5, len(values)))
             lb.pack()
 
             for val in stripped_values_list[:5]:
@@ -257,8 +259,7 @@ class EmailRow(Frame):
                 self.after_cancel(self._after_id)
 
             self._after_id = self.after(
-                200, lambda: parent.on_search_change(self)
-            )
+                200, lambda: parent.on_search_change(self))
         # připojení callbacku na změnu StringVar
         self.search_email_var.trace_add("write", trace_callback)
 
@@ -267,7 +268,7 @@ class EmailRow(Frame):
         # ------------------------------
 
         # Entry pro email
-        self.entry_email = Entry(self, textvariable=self.search_email_var)
+        self.entry_email = Entry(self, width=25,textvariable=self.search_email_var)
         self.entry_email.grid(column=0, row=0, padx=5, pady=5)
 
         # Label – placeholder

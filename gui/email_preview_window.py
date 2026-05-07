@@ -26,5 +26,5 @@ class EmailPreviewTab(Frame):
         html = self.html_converter(self.load_email_details['body'])
 
 
-        email_label = HTMLLabel(self, html=html)
+        email_label = HTMLLabel(self, html=html,height=100)
         email_label.grid(column=1, row=3, padx=25, pady=0)

@@ -1,11 +1,32 @@
 from datetime import timedelta, datetime
 import constants as c
 from utils import remove_diacritics
+import tkinter as tk
+from email_validator import validate_email, EmailNotValidError
 
+def get_emails(rows):
+    """gets email addresses from entries """
+    emails = []
+    for row in rows:
+        widgets = row.winfo_children()
+        for widget in widgets:
+            if isinstance(widget, tk.Entry):
+                email = widget.get()
+                emails.append(email)
+    return emails
 
-def send_email():
-    # #po 2 sekundách label skryje, pro kazdy label bezi samostatny timeout jestli nekdo bude klikat jak jeblej tak se to rozbije
-    pass
+def check_email(email):
+    """checks if email format is ok"""
+    email_info = validate_email(email, check_deliverability=True)
+    return email_info.normalized
+
+def email_sender(rows):
+    """sends email/s"""
+    emails = get_emails(rows)
+    for email in emails:
+        normalized_email = check_email(email)
+        print(normalized_email)
+
 
 
 def load_email_details(config):
@@ -18,6 +39,8 @@ def load_email_details(config):
     body2 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_2, fallback='')
     body3 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_3, fallback='')
     sign = config.get(c.EMAIL_SECTION, c.EMAIL_SIGN, fallback='')
+
+
     return {'smtp_server': smtp_server,
             'smtp_port': smtp_port,
             'username': username,
@@ -45,9 +68,8 @@ def selected_value_manager(value):
     print(email,exp_date, exp_time)
     return email, exp_date, exp_time
 def html_converter(html_text):
-    """raw html body to plain text"""
-    html = html_text.encode('cp1250').decode('UTF-8', errors='ignore')
-    html = html.replace('\r\n\r\n', '</p><p>')
+    """Raw html body to plain text"""
+    html = html_text.replace('\r\n\r\n', '</p><p>')
     html = html.replace('\n\n', '</p><p>')
 
     # Převod jednotlivých nových řádků na <br>
@@ -62,3 +84,5 @@ def minus_day_counter(exp_date:str):
     raw_date = t - timedelta(days=1)
     raw_date = raw_date.strftime('%d.%m')
     return raw_date
+
+
