@@ -47,9 +47,6 @@ class ExcelTab(Frame):
         )
         button_reload_excel.grid(column=0, row=1, sticky="nw", padx=5, pady=5)
 
-        # při vytvoření tabu se rovnou pokusí načíst excel
-        self.load_excel()
-
         self.load_excel()
 
     def load_excel(self):
