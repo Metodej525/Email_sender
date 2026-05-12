@@ -7,32 +7,32 @@ from Service.email_details import email_details
 
 def get_emails(rows):
     """gets email addresses from entries """
-    emails = []
+    email_dict = {}
     for row in rows:
-        widgets = row.winfo_children()
-        for widget in widgets:
-            if isinstance(widget, tk.Entry):
-                email = widget.get()
-                emails.append(email)
-    return emails
+        row_dict = row.row_to_dict()
+        email_dict[row_dict['email']] = row_dict['email_body']
 
-def check_email(email):
+    return email_dict
+
+def check_email(rows):
     """checks if email format is ok"""
-    email_info = validate_email(email, check_deliverability=True)
-    return email_info.normalized
+    checked_dict = {}
+    email_dict = get_emails(rows)
+    for email,body in email_dict.items():
+        try:
+            email_info = validate_email(email, check_deliverability=True)
+            email = email_info.normalized
+            checked_dict[email] = body
+        except EmailNotValidError:
+            raise
+
+    return checked_dict
 
 def email_sender(config,rows):
     """sends email/s"""
-    emails = get_emails(rows)
-    for email in emails:
-        try:
-            normalized_email = check_email(email)
-            email_details(config,normalized_email)
-        except EmailNotValidError:
-            raise
-        print(normalized_email)
-
-
+    checked_dict = check_email(rows)
+    for email, body in checked_dict.items():
+        email_details(config,email,body)
 
 def load_email_details(config):
     smtp_server = config.get(c.EMAIL_SECTION, c.EMAIL_SMTP_SERVER, fallback='')

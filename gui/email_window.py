@@ -88,7 +88,7 @@ class EmailTab(Frame):
         """Potvrzení a odeslání emailu"""
         if tkinter.messagebox.askquestion(title='', message='Odeslat email?') == 'yes':
             self._pop_up_window('', 'Email byl odeslán')
-            self.email_sender(self.rows)
+            self.email_sender(self.config,self.rows)
             self.reset_rows()
 
     def reset_rows(self):
@@ -247,8 +247,10 @@ class EmailRow(Frame):
         self.exp_date = None
         self.exp_time = None
         self.email_body = None
+        self.email = None
         self.config = config
         self.specific_email_preview = specific_email_preview
+
         # ------------------------------
         # Debounce callback pro live search
         # ------------------------------
@@ -289,12 +291,21 @@ class EmailRow(Frame):
     def safe_set_values(self, email, exp_date, exp_time):
         self.is_updating = True
         try:
+            self.email = email
             self.exp_date = exp_date
             self.exp_time = exp_time
             self.email_body = self.specific_email_preview(self.config, self.exp_date, self.exp_time)
             self.entry_email.delete(0, tk.END)
-            self.entry_email.insert(0, email)
+            self.entry_email.insert(0, self.email)
 
             self.label_date.config(text=f"{exp_date} {exp_time}")
+
+
         finally:
             self.is_updating = False
+    def row_to_dict(self):
+        row_dict = {'exp_date': self.exp_date,
+                    'exp_time': self.exp_time,
+                    'email_body': self.email_body,
+                    'email': self.email}
+        return row_dict
