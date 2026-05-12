@@ -4,7 +4,7 @@ import tkinter.messagebox
 from tkhtmlview import HTMLLabel
 
 class EmailTab(Frame):
-    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager, specific_email_preview,html_converter,email_sender):
+    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager,html_converter,email_sender,specific_email_preview):
         super().__init__(notebook)
 
         # --- state ---
@@ -38,7 +38,7 @@ class EmailTab(Frame):
 
     def default_row(self):
         """Inicializuje první (defaultní) řádek"""
-        row = EmailRow(self, self.remove_row, self.email_preview)
+        row = EmailRow(self, self.config, self.remove_row, self.email_preview,self.specific_email_preview)
         row.grid(row=len(self.rows) + 1, column=0, columnspan=5, sticky="w")
 
         self.rows.append(row)
@@ -61,7 +61,7 @@ class EmailTab(Frame):
             self.create_send_btn(len(self.rows) + 3)
 
         if len(self.rows) < 5:
-            row = EmailRow(self, self.remove_row, self.email_preview)
+            row = EmailRow(self,self.config, self.remove_row, self.email_preview,self.specific_email_preview)
             self.rows.append(row)
             row.grid(row=len(self.rows) + 1, column=0, columnspan=5, sticky="w")
 
@@ -101,9 +101,7 @@ class EmailTab(Frame):
 
     def email_preview(self, row):
         """Debug preview (index řádku)"""
-        exp_date = row.exp_date
-        exp_time = row.exp_time
-        text = self.specific_email_preview(self.config, exp_date, exp_time)
+        text = row.email_body
         converted_text = self.html_converter(text)
 
         if row in self.rows:
@@ -239,7 +237,7 @@ class EmailRow(Frame):
     - Tlačítko pro náhled / preview emailu
     """
 
-    def __init__(self, parent, remove_callback, preview_callback):
+    def __init__(self, parent, config, remove_callback, preview_callback, specific_email_preview):
         super().__init__(parent)
 
         # --- internal state ---
@@ -248,6 +246,9 @@ class EmailRow(Frame):
         self.search_email_var = StringVar() # propojení Entry ↔ live search
         self.exp_date = None
         self.exp_time = None
+        self.email_body = None
+        self.config = config
+        self.specific_email_preview = specific_email_preview
         # ------------------------------
         # Debounce callback pro live search
         # ------------------------------
@@ -290,6 +291,7 @@ class EmailRow(Frame):
         try:
             self.exp_date = exp_date
             self.exp_time = exp_time
+            self.email_body = self.specific_email_preview(self.config, self.exp_date, self.exp_time)
             self.entry_email.delete(0, tk.END)
             self.entry_email.insert(0, email)
 

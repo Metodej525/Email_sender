@@ -3,6 +3,7 @@ import constants as c
 from utils import remove_diacritics
 import tkinter as tk
 from email_validator import validate_email, EmailNotValidError
+from Service.email_details import email_details
 
 def get_emails(rows):
     """gets email addresses from entries """
@@ -20,11 +21,15 @@ def check_email(email):
     email_info = validate_email(email, check_deliverability=True)
     return email_info.normalized
 
-def email_sender(rows):
+def email_sender(config,rows):
     """sends email/s"""
     emails = get_emails(rows)
     for email in emails:
-        normalized_email = check_email(email)
+        try:
+            normalized_email = check_email(email)
+            email_details(config,normalized_email)
+        except EmailNotValidError:
+            raise
         print(normalized_email)
 
 
@@ -53,7 +58,7 @@ def specific_email_preview(config,exp_date,exp_time):
     body2 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_2, fallback='')
     body3 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_3, fallback='')
     sign =  config.get(c.EMAIL_SECTION, c.EMAIL_SIGN, fallback='')
-    minus_exp_date = minus_day_counter(exp_date)
+    minus_exp_date = previous_workday(exp_date)
 
 
     body = f'{body1} {exp_date} {exp_time} {body2} {minus_exp_date} {body3} {sign}'
@@ -79,10 +84,14 @@ def html_converter(html_text):
     # Obal pro celý text do <p>
     html = f"<p>{html}</p>"
     return html
-def minus_day_counter(exp_date:str):
+def previous_workday(exp_date: str):
     t = datetime.strptime(exp_date, "%d.%m.%Y")
-    raw_date = t - timedelta(days=1)
-    raw_date = raw_date.strftime('%d.%m')
-    return raw_date
+
+    while True:
+        t -= timedelta(days=1)
+
+        # 0-4 = Po-Pá
+        if t.weekday() < 5:
+            return t.strftime("%d.%m")
 
 

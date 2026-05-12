@@ -12,6 +12,7 @@ EMAIL_SENDER = 'sender_email'
 EMAIL_SMTP_SERVER = 'smtp_server'
 EMAIL_SMTP_PORT = 'smtp_port'
 EMAIL_USERNAME = 'username'
+EMAIL_CC = 'cc'
 
 SIGNATURE_SECTION = 'SIGNATURE'
 SIGNATURE_NAME = 'name'

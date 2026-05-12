@@ -15,6 +15,7 @@ from gui.email_window import EmailTab
 from gui.excel_window import ExcelTab
 from gui.signature_window import SignatureTab
 from Service.email_service import load_email_details, selected_value_manager, specific_email_preview, html_converter, email_sender
+from Service.email_details import email_details
 from Service.excel_service import excel_path_load, excel_search, excel_load
 from Service.signature_service import save_signature, load_signature_data
 from utils import safe_write_config
@@ -26,7 +27,7 @@ config.read(filenames=c.CONFIG_PATH, encoding=c.CONFIG_ENCODING)
 
 #nacteni zpravy pro budouci upravy
 # message = config.get(section=c.EMAIL_SECTION,option=c.EMAIL_BODY)
-
+#email_details(config,'michal.kopec@ikem.cz','hehe')
 
 
 root = Tk()
@@ -37,7 +38,7 @@ root.title(c.ROOT_TITLE)
 signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
 email_preview_tab = EmailPreviewTab(notebook,load_email_details,html_converter,config )
 excel_tab = ExcelTab(notebook,excel_path_load,safe_write_config,config,excel_load)
-email_tab = EmailTab(notebook,root,excel_search,config,excel_tab.df,selected_value_manager,specific_email_preview,html_converter, email_sender)
+email_tab = EmailTab(notebook,root,excel_search,config,excel_tab.df,selected_value_manager,html_converter, email_sender,specific_email_preview)
 
 
 notebook.add(email_tab, text="Email")
