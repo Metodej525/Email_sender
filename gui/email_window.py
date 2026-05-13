@@ -1,7 +1,10 @@
+from os import remove
 from tkinter import Frame, Button, Entry, Label, StringVar, Listbox
 import tkinter as tk
 import tkinter.messagebox
 from tkhtmlview import HTMLLabel
+
+
 
 class EmailTab(Frame):
     def __init__(self, notebook, root, excel_search, config, df,selected_value_manager,html_converter,email_sender,specific_email_preview):
@@ -18,41 +21,37 @@ class EmailTab(Frame):
         self.specific_email_preview = specific_email_preview
         self.html_converter = html_converter
         self.email_sender = email_sender
-        # --- global event bindings ---
-        # reposition dropdown při pohybu okna
-        self.root.bind("<Configure>", self._on_window_move)
-
-        # zavření dropdownu při změně tabu
-        self.root.bind("<<NotebookTabChanged>>", self._on_notebook_change)
-
-        # zavření dropdownu při minimalizaci
-        self.root.bind("<Unmap>", self._on_minimize)
-
+        self.dropdown = None
         self.toolbox()
         self.default_row()
 
     def toolbox(self):
         """Header labels"""
         Label(self, text='Email').grid(column=0, row=0, pady=5, padx=25)
-        Label(self, text='Datum vypršení certifikátu').grid(column=1, row=0, pady=5, padx=75)
+        # Label(self, text='Datum vypršení certifikátu').grid(column=1, row=0, pady=5, padx=75)
 
     def default_row(self):
         """Inicializuje první (defaultní) řádek"""
         row = EmailRow(self, self.config, self.remove_row, self.email_preview,self.specific_email_preview)
-        row.grid(row=len(self.rows) + 1, column=0, columnspan=5, sticky="w")
+        row.grid(row=len(self.rows) + 1, column=0, columnspan=6, sticky="w")
 
         self.rows.append(row)
 
         # první řádek nemá delete tlačítko
-        for widget in self.rows[0].winfo_children():
-            if isinstance(widget, Button) and widget.cget("text") == "x":
-                widget.destroy()
+        if hasattr(self.rows[0],'btn_delete'):
+            self.rows[0].btn_delete.destroy()
 
         # reset send buttonu
         if self.btn_send_email:
             self.btn_send_email.destroy()
 
+        #vytvoení send buttonu na 3 řádku
+        self.create_add_email_btn()
         self.create_send_btn(2)
+
+    def create_add_email_btn(self):
+        self.add_email_btn = Button(self, text='➕', command=self.add_email)
+        self.add_email_btn.grid(row=1,column=6, padx= 0)
 
     def add_email(self):
         """Přidá nový emailový řádek (max 5)"""
@@ -64,11 +63,22 @@ class EmailTab(Frame):
             row = EmailRow(self,self.config, self.remove_row, self.email_preview,self.specific_email_preview)
             self.rows.append(row)
             row.grid(row=len(self.rows) + 1, column=0, columnspan=5, sticky="w")
+        self.check_add_email_btn_grid()
+
+    def check_add_email_btn_grid(self):
+
+        has_empty = any(not row.entry_email.get().strip() for row in self.rows)
+        has_filled = any(row.entry_email.get().strip() for row in self.rows)
+
+        if has_empty and has_filled:
+            self.add_email_btn.grid_remove()
+        else:
+            self.add_email_btn.grid()
 
     def create_send_btn(self, row):
         """Vytvoří tlačítko pro odeslání"""
         self.btn_send_email = Button(self, text='Odeslat email', command=self.send_email)
-        self.btn_send_email.grid(column=1, row=row)
+        self.btn_send_email.grid(column=0, row=row, pady=20)
 
     def remove_row(self, row):
         """Smaže konkrétní řádek a přepočítá layout"""
@@ -83,7 +93,7 @@ class EmailTab(Frame):
         if self.btn_send_email:
             self.btn_send_email.destroy()
         self.create_send_btn(len(self.rows) + 1)
-
+        self.check_add_email_btn_grid()
     def send_email(self):
         """Potvrzení a odeslání emailu"""
         if tkinter.messagebox.askquestion(title='', message='Odeslat email?') == 'yes':
@@ -93,8 +103,8 @@ class EmailTab(Frame):
 
     def reset_rows(self):
         """Reset UI do výchozího stavu"""
-        for tab in self.rows:
-            tab.destroy()
+        for row in self.rows:
+            row.destroy()
 
         self.rows.clear()
         self.default_row()
@@ -114,97 +124,66 @@ class EmailTab(Frame):
         HTMLLabel(popup, html=label_text,height=30,padx=25,pady=25).pack()
         # self.exp_time = []
         # self.exp_date = []
+
     def on_search_change(self, row):
         """Trigger live search (debounced z EmailRow)"""
         if row in self.rows:
-            email_val = str(row.entry_email.get())
+            email_val = str(row.entry_email.get().lower())
             if len(email_val) >= 3:
                 self.live_search(email_val, row)
 
-    # =========================
-    # DROPDOWN MANAGEMENT
-    # =========================
-
-    def _on_notebook_change(self, event):
-        """Zavře dropdown při změně tabu"""
-        self._close_dropdown()
-
-    def _on_minimize(self, event):
-        """Zavře dropdown při minimalizaci"""
-        self._close_dropdown()
-
-    def _close_dropdown(self):
-        """Bezpečné zavření dropdownu"""
-        if hasattr(self, "dropdown") and self.dropdown:
-            try:
-                self.dropdown.destroy()
-            except:
-                pass
-
-            self.dropdown = None
-            self.active_row = None
-
-    def _on_window_move(self, event):
-        """Reposition dropdownu při pohybu okna"""
-        if hasattr(self, "dropdown") and self.dropdown and hasattr(self, "active_row"):
-            row = self.active_row
-            try:
-                x = row.entry_email.winfo_rootx()
-                y = row.entry_email.winfo_rooty() + row.entry_email.winfo_height()
-                self.dropdown.geometry(f"+{x}+{y}")
-            except:
-                # row mohl být mezitím zničen
-                pass
-
-    def _on_click_outside(self, event):
-        """Zavře dropdown při kliknutí mimo"""
-        if not hasattr(self, "dropdown") or not self.dropdown:
-            return
-
-        widget = event.widget
-
-        # klik uvnitř dropdownu → ignoruj
-        if str(widget).startswith(str(self.dropdown)):
-            return
-
-        # klik do aktivního entry → ignoruj
-        if hasattr(self, "active_row") and widget == self.active_row.entry_email:
-            return
-
-        self._close_dropdown()
-
     def live_search(self, entry_val, row):
         """Vykreslí autocomplete dropdown"""
+
         values = self.excel_search(entry_val, self.df)
-        if values:
-            self.root.bind("<Button-1>", self._on_click_outside)
-            self.active_row = row
 
-            # transformace dat do stringu
-            stripped_values_list = [
-                ', '.join(map(str, row_data)) for row_data in values
-            ]
-
-            # zrušení starého dropdownu
-            if hasattr(self, "dropdown") and self.dropdown:
+        # nic nenalezeno → zavři dropdown
+        if not values:
+            if self.dropdown:
                 self.dropdown.destroy()
+                self.dropdown = None
+            return
 
-            # vytvoření nového dropdownu
-            self.dropdown = tk.Toplevel(self.root)
-            self.dropdown.wm_overrideredirect(True)
+        # aktivní row
+        self.active_row = row
 
-            # pozice pod Entry
-            x = row.entry_email.winfo_rootx()
-            y = row.entry_email.winfo_rooty() + row.entry_email.winfo_height()
-            self.dropdown.geometry(f"+{x}+{y}")
+        # transformace dat do stringu
+        stripped_values_list = [
+            ', '.join(map(str, row_data))
+            for row_data in values
+        ]
 
-            lb = Listbox(self.dropdown, width=50, height=min(5, len(values)))
-            lb.pack()
+        # zruš starý dropdown
+        if self.dropdown:
+            self.dropdown.destroy()
 
-            for val in stripped_values_list[:5]:
-                lb.insert(tk.END, val)
+        # vytvoř nový dropdown
+        self.dropdown = EmailDropDownMenu(self.root, row)
 
-            lb.bind('<Double-Button-1>', self.on_select)
+        # Listbox
+        lb = Listbox(
+            self.dropdown,
+            width=50,
+            height=min(5, len(stripped_values_list))
+        )
+        lb.pack(fill="both", expand=True)
+
+        # vložení hodnot
+        for val in stripped_values_list[:5]:
+            lb.insert(tk.END, val)
+
+        # select event
+        lb.bind(
+            "<Double-Button-1>",
+            lambda event: self.on_select(event)
+        )
+
+        # click outside
+        self.root.bind(
+            "<Button-1>",
+            self.dropdown.on_click_outside,
+            add="+"
+        )
 
     def on_select(self, event):
         lb = event.widget
@@ -216,12 +195,11 @@ class EmailTab(Frame):
             row = self.active_row
             if self.rows.index(self.active_row) == len(self.rows) -1:
                 self.add_email()
-            self._close_dropdown()
+            self.dropdown.safe_destroy()
 
             email, exp_date, exp_time = self.selected_value_manager(value)
 
             row.safe_set_values(email, exp_date, exp_time)
-
 
     @staticmethod
     def _pop_up_window(title, text):
@@ -278,15 +256,18 @@ class EmailRow(Frame):
         self.label_date = Label(self, text='')
         self.label_date.grid(column=1, row=0, padx=15, pady=5)
 
-        # Tlačítko pro odstranění řádku
-        # Volá callback parentu, který řádek smaže z listu a přepočítá grid
-        btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
-        btn_delete.grid(column=2, row=0)
-
         # Tlačítko pro náhled / preview
         # Volá parent callback, např. otevře popup s informacemi
-        btn_preview = Button(self, text="🔎", command=lambda: preview_callback(self))
-        btn_preview.grid(column=3, row=0)
+        self.btn_preview = Button(self, text="🔎", command=lambda: preview_callback(self))
+        self.btn_preview.grid(column=2, row=0)
+
+        self.btn_importance = SkullToggle(self)
+        self.btn_importance.grid(column=3,row=0)
+
+        # Tlačítko pro odstranění řádku
+        # Volá callback parentu, který řádek smaže z listu a přepočítá grid
+        self.btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
+        self.btn_delete.grid(column=4, row=0)
 
     def safe_set_values(self, email, exp_date, exp_time):
         self.is_updating = True
@@ -309,3 +290,118 @@ class EmailRow(Frame):
                     'email_body': self.email_body,
                     'email': self.email}
         return row_dict
+    def importance_toggle(self):
+        pass
+
+class EmailDropDownMenu(tk.Toplevel):
+
+    def __init__(self, root, row):
+        super().__init__(root)
+
+        self.root = root
+        self.row = row
+
+        # bez title baru
+        self.wm_overrideredirect(True)
+
+        # vždy nahoře
+        self.attributes("-topmost", True)
+
+        # pozice popupu
+        self.update_position()
+
+        # bindy
+        self.root.bind("<Configure>", self._on_window_move, add="+")
+        self.root.bind("<Unmap>", self._on_minimize, add="+")
+        self.root.bind("<<NotebookTabChanged>>", self._on_tab_change, add="+")
+
+    # =========================
+    # POSITION
+    # =========================
+
+    def update_position(self):
+
+        try:
+            x = self.row.entry_email.winfo_rootx()
+
+            y = (
+                self.row.entry_email.winfo_rooty()
+                + self.row.entry_email.winfo_height()
+            )
+
+            self.geometry(f"+{x}+{y}")
+
+        except tk.TclError:
+            pass
+
+    def _on_window_move(self, event):
+        self.update_position()
+
+    # =========================
+    # CLOSE EVENTS
+    # =========================
+
+    def _on_minimize(self, event):
+        self.safe_destroy()
+
+    def _on_tab_change(self, event):
+        self.safe_destroy()
+
+    def on_click_outside(self, event):
+
+        try:
+            widget = event.widget
+
+            # klik uvnitř dropdownu
+            if str(widget).startswith(str(self)):
+                return
+
+            # klik do entry
+            if widget == self.row.entry_email:
+                return
+
+            self.safe_destroy()
+
+        except tk.TclError:
+            pass
+
+    # =========================
+    # DESTROY
+    # =========================
+
+    def safe_destroy(self):
+
+        try:
+            self.destroy()
+
+        except tk.TclError:
+            pass
+
+class SkullToggle(tk.Button):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, text="💀", width=4, **kwargs)
+
+        self.state = False
+        self.config(command=self.toggle)
+
+        self.update_style()
+
+    def toggle(self):
+        self.state = not self.state
+        self.update_style()
+
+    def update_style(self):
+        if self.state:
+            self.config(
+                text="💀",
+                bg="#fff176",
+                activebackground="#fff59d",
+                relief="sunken"
+            )
+        else:
+            self.config(
+                text="💀",
+                bg="#e0e0e0",
+                activebackground="#eeeeee",
+                relief="raised"
+            )

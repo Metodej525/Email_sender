@@ -1,7 +1,6 @@
 from datetime import timedelta, datetime
 import constants as c
 from utils import remove_diacritics
-import tkinter as tk
 from email_validator import validate_email, EmailNotValidError
 from Service.email_details import email_details
 
@@ -17,14 +16,18 @@ def get_emails(rows):
 def check_email(rows):
     """checks if email format is ok"""
     checked_dict = {}
-    email_dict = get_emails(rows)
-    for email,body in email_dict.items():
+    raw_email_dict = get_emails(rows)
+    checked_email_dict = email_none_state(raw_email_dict)
+    print(checked_email_dict)
+
+    for email,body in checked_email_dict.items():
         try:
-            email_info = validate_email(email, check_deliverability=True)
+            email_info = validate_email(str(email), check_deliverability=True)
             email = email_info.normalized
             checked_dict[email] = body
-        except EmailNotValidError:
-            raise
+        except EmailNotValidError as e:
+            print(e)
+            continue
 
     return checked_dict
 
@@ -33,7 +36,14 @@ def email_sender(config,rows):
     checked_dict = check_email(rows)
     for email, body in checked_dict.items():
         email_details(config,email,body)
+    print(checked_dict)
 
+def email_none_state(checked_dict):
+    return {
+        key: value
+        for key, value in checked_dict.items()
+        if key
+    }
 def load_email_details(config):
     smtp_server = config.get(c.EMAIL_SECTION, c.EMAIL_SMTP_SERVER, fallback='')
     smtp_port = config.get(c.EMAIL_SECTION, c.EMAIL_SMTP_PORT, fallback='')
