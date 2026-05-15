@@ -1,37 +1,60 @@
 import smtplib
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
 import constants as c
 
 
 
 # SMTP Configuration
 def email_details(config,receiver, body):
+
+
+
     SMTP_SERVER = config.get(c.EMAIL_SECTION,c.EMAIL_SMTP_SERVER)
     SMTP_PORT = int(config.get(c.EMAIL_SECTION,c.EMAIL_SMTP_PORT))
     USERNAME = ''
     PASSWORD = ''
+    raw_body = body + '<img src="cid:logo_image">'
+    #signature image manager
+
 
     # Email Details
     sender_email = config.get(c.EMAIL_SECTION,c.EMAIL_SENDER)
     receiver_email = receiver
     subject = config.get(c.EMAIL_SECTION,c.EMAIL_SUBJECT)
-    html_body = body
+    html_body = raw_body
     cc_emails = [
         email.strip()
         for email in config.get(c.EMAIL_SECTION, c.EMAIL_CC).split(',')
     ]
+    msg = MIMEMultipart('related')
+
     # Create the email
-    message = MIMEText(html_body, "html")
-    message["Subject"] = subject
-    message["From"] = sender_email
-    message["To"] = receiver_email
-    message["Cc"] = config.get(c.EMAIL_SECTION,c.EMAIL_CC)
+
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = receiver_email
+    msg["Cc"] = config.get(c.EMAIL_SECTION,c.EMAIL_CC)
+
+    msg.attach(MIMEText(html_body, "html"))
+
+    # Attach image
+    img_path = c.BASE_DIR / config.get(c.EMAIL_SECTION, c.EMAIL_SIGN_LOGO_PATH)
+
+    with open(img_path, "rb") as f:
+        img = MIMEImage(f.read())
+
+    img.add_header('Content-ID', '<logo_image>')
+    img.add_header('Content-Disposition', 'inline')
+
+    msg.attach(img)
 
     recipients = [receiver_email] + cc_emails
 
     # Send the email
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-        server.sendmail(sender_email, recipients, message.as_string())
+        server.sendmail(sender_email, recipients, msg.as_string())
 
     print("HTML email sent successfully!")
 

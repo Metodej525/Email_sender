@@ -98,7 +98,7 @@ class EmailTab(Frame):
         """Potvrzení a odeslání emailu"""
         if tkinter.messagebox.askquestion(title='', message='Odeslat email?') == 'yes':
             self._pop_up_window('', 'Email byl odeslán')
-            self.email_sender(self.config,self.rows)
+            self.email_sender(self.config,self.rows,self.active_row.btn_importance.state)
             self.reset_rows()
 
     def reset_rows(self):
@@ -122,8 +122,6 @@ class EmailTab(Frame):
         popup = tk.Toplevel(self.root)
         popup.wm_title("🔎")
         HTMLLabel(popup, html=label_text,height=30,padx=25,pady=25).pack()
-        # self.exp_time = []
-        # self.exp_date = []
 
     def on_search_change(self, row):
         """Trigger live search (debounced z EmailRow)"""
@@ -290,8 +288,6 @@ class EmailRow(Frame):
                     'email_body': self.email_body,
                     'email': self.email}
         return row_dict
-    def importance_toggle(self):
-        pass
 
 class EmailDropDownMenu(tk.Toplevel):
 
@@ -398,6 +394,7 @@ class SkullToggle(tk.Button):
                 activebackground="#fff59d",
                 relief="sunken"
             )
+            self.state = True
         else:
             self.config(
                 text="💀",
@@ -405,3 +402,4 @@ class SkullToggle(tk.Button):
                 activebackground="#eeeeee",
                 relief="raised"
             )
+            self.state = False
