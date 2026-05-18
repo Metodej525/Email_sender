@@ -86,7 +86,7 @@ def selected_value_manager(value):
     print(email,exp_date, exp_time)
     return email, exp_date, exp_time
 def html_converter(html_text):
-    """Raw html body to plain text"""
+    """Raw HTML body to plain text"""
     html = html_text.replace('\r\n\r\n', '</p><p>')
     html = html.replace('\n\n', '</p><p>')
 
@@ -97,37 +97,13 @@ def html_converter(html_text):
     # Obal pro celý text do <p>
     html = f"<p>{html}</p>"
     return html
-def importance_toggle(body):
-#     body = """<div>
-# <p>Dobrý den,<br/><br/><font style=background-color:yellow;><b>blíží se konec platnosti vašeho certifikátu</b> na e-podpis (28.5.). <b>Dostavte se, prosím, co nejdříve</b> (nejpozději dne <b>27.5.</b>) s čipovou kartou na Odbor informatiky - dveře <b>A4015</b> (vedle stříbrné poštovní schránky), provedeme prodloužení platnosti. Musíte znát PIN karty.<br/>Přijďte v pracovní dny ideálně mezi 8:30 – 11:30 a 12:30 - 15:45.</font><br/><br/>Certifikáty prodlužují: Komínková Ilona, Zoth Jindřich nebo Kopec Michal.<br/><b>V případě naší nepřítomnosti zajděte na sekretariát OI dveře A4002 – k asistence Kláře Tiché (linka 4200).</b></p>
-# </div>"""
-    return body
 
-#     return body.replace(
-#         "<span>",
-#         """
-# <font style="background-color:#fff59d;">"""
-#     ).replace(
-#         '</span>',
-#         """
-#         </font>
-#         """
-#
-#     )
-    # return body.replace(
-    #     "<span>",
-    #     """<table cellspacing="0" cellpadding="0" style="display:inline;">
-    #     <tr>
-    #     <td bgcolor="yellow">"""
-    # ).replace(
-    #     '</span>',
-    #     """
-    #     </td>
-    #         </tr>
-    #         </table>
-    #     """
-    #
-    # )
+def importance_toggle(body):
+    return body.replace(
+        "<span>",
+        '<span style="background-color:#fff59d;">'
+        )
+
 def previous_workday(exp_date: str):
     t = datetime.strptime(exp_date, "%d.%m.%Y")
 
