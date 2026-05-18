@@ -42,12 +42,14 @@ def email_sender(config,rows,toggle):
 
 
 def email_none_state(checked_dict):
+    """checks and deletes None values from dict"""
     return {
         key: value
         for key, value in checked_dict.items()
         if key
     }
 def load_email_details(config):
+    """loads all email props and returns them as dict"""
     smtp_server = config.get(c.EMAIL_SECTION, c.EMAIL_SMTP_SERVER, fallback='')
     smtp_port = config.get(c.EMAIL_SECTION, c.EMAIL_SMTP_PORT, fallback='')
     username = config.get(c.EMAIL_SECTION, c.EMAIL_USERNAME, fallback='')
@@ -67,6 +69,7 @@ def load_email_details(config):
             'body': f'{body1} datum {body2} datum {body3} {sign}'
             }
 def specific_email_preview(config,exp_date,exp_time):
+    """loads preview of email in specific row and returns it"""
     body1 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_1, fallback='')
     body2 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_2, fallback='')
     body3 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_3, fallback='')
@@ -77,6 +80,7 @@ def specific_email_preview(config,exp_date,exp_time):
     body = f'{body1} {exp_date} {exp_time} {body2} {minus_exp_date} {body3} {sign}'
     return body
 def selected_value_manager(value):
+    """loads on_select values and props them + makes email str"""
     raw_surname, raw_firstname, login, cert_type, exp = [x.strip() for x in value.split(',')]
     exp_date, exp_time = exp.split()
     surname = remove_diacritics(raw_surname.lower())
@@ -86,7 +90,7 @@ def selected_value_manager(value):
     print(email,exp_date, exp_time)
     return email, exp_date, exp_time
 def html_converter(html_text):
-    """Raw HTML body to plain text"""
+    """Raw HTML body to plain text, used in preview tab"""
     html = html_text.replace('\r\n\r\n', '</p><p>')
     html = html.replace('\n\n', '</p><p>')
 
@@ -99,12 +103,14 @@ def html_converter(html_text):
     return html
 
 def importance_toggle(body):
+    """Gives HTML text expect signature yellow background color"""
     return body.replace(
         "<span>",
         '<span style="background-color:#fff59d;">'
         )
 
 def previous_workday(exp_date: str):
+    """calculate previous workday"""
     t = datetime.strptime(exp_date, "%d.%m.%Y")
 
     while True:

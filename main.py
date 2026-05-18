@@ -4,6 +4,8 @@
 #logování
 
 import configparser
+import os
+import sys
 from tkinter import *
 from tkinter import ttk
 
@@ -19,14 +21,16 @@ from Service.signature_service import save_signature, load_signature_data
 from utils import safe_write_config
 import constants as c
 
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+config_path = os.path.join(BASE_DIR, "config.ini")
+
 #config.ini nacteni
 config = configparser.ConfigParser()
 config.read(filenames=c.CONFIG_PATH, encoding=c.CONFIG_ENCODING)
-
-#nacteni zpravy pro budouci upravy
-# message = config.get(section=c.EMAIL_SECTION,option=c.EMAIL_BODY)
-#email_details(config,'michal.kopec@ikem.cz','hehe')
-
 
 root = Tk()
 notebook = ttk.Notebook(root)
