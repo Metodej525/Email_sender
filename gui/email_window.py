@@ -1,4 +1,3 @@
-from os import remove
 from tkinter import Frame, Button, Entry, Label, StringVar, Listbox
 import tkinter as tk
 import tkinter.messagebox
