@@ -1,7 +1,11 @@
+import os
 import smtplib
+import sys
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
+from pathlib import Path
+
 import constants as c
 
 
@@ -40,7 +44,12 @@ def email_details(config,receiver, body):
     msg.attach(MIMEText(html_body, "html"))
 
     # Attach image
-    img_path = c.BASE_DIR / config.get(c.EMAIL_SECTION, c.EMAIL_SIGN_LOGO_PATH)
+    if getattr(sys, 'frozen', False):
+        base_dir = Path(sys.executable).resolve().parent
+    else:
+        base_dir = c.BASE_DIR
+
+    img_path = base_dir / 'static' / 'img' / 'signature_email_logo.png'
 
     with open(img_path, "rb") as f:
         img = MIMEImage(f.read())

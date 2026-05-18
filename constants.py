@@ -3,7 +3,7 @@ from pathlib import Path
 #absolutní cesta do project složky složky
 BASE_DIR = Path(__file__).resolve().parent
 
-ROOT_TITLE = ':)'
+ROOT_TITLE = '✉️'
 CONFIG_PATH = 'config.ini'
 CONFIG_ENCODING = 'UTF-8'
 

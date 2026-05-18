@@ -6,6 +6,7 @@
 import configparser
 import os
 import sys
+from pathlib import Path
 from tkinter import *
 from tkinter import ttk
 
@@ -22,11 +23,11 @@ from utils import safe_write_config
 import constants as c
 
 if getattr(sys, 'frozen', False):
-    BASE_DIR = os.path.dirname(sys.executable)
+    BASE_DIR = Path(os.path.dirname(sys.executable))
 else:
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = c.BASE_DIR
 
-config_path = os.path.join(BASE_DIR, "config.ini")
+CONFIG_PATH = BASE_DIR / "config.ini"
 
 #config.ini nacteni
 config = configparser.ConfigParser()
