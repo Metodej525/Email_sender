@@ -25,6 +25,8 @@ class EmailTab(Frame):
         self.toolbox()
         self.default_row()
 
+
+
     def toolbox(self):
         """Header labels"""
         Label(self, text='Email').grid(column=0, row=0, pady=5, padx=25)
@@ -55,15 +57,29 @@ class EmailTab(Frame):
 
     def add_email(self):
         """Přidá nový emailový řádek (max 5)"""
+
+        row = None
+
+        if len(self.rows) < 5:
+            row = EmailRow(
+                self,
+                self.config,
+                self.remove_row,
+                self.email_preview,
+                self.specific_email_preview
+            )
+
+            self.rows.append(row)
+            row.grid(row=len(self.rows) + 1, column=0, columnspan=5, sticky="w")
+
+        # vždy update buttonu (NEblokuje return)
         if self.btn_send_email:
             self.btn_send_email.destroy()
             self.create_send_btn(len(self.rows) + 3)
 
-        if len(self.rows) < 5:
-            row = EmailRow(self,self.config, self.remove_row, self.email_preview,self.specific_email_preview)
-            self.rows.append(row)
-            row.grid(row=len(self.rows) + 1, column=0, columnspan=5, sticky="w")
         self.check_add_email_btn_grid()
+
+        return row
 
     def check_add_email_btn_grid(self):
 
@@ -159,19 +175,21 @@ class EmailTab(Frame):
         self.dropdown = EmailDropDownMenu(self.root, row)
 
         # Listbox
-        lb = Listbox(
+        self.dropdown.listbox = Listbox(
             self.dropdown,
             width=50,
             height=min(5, len(stripped_values_list))
         )
-        lb.pack(fill="both", expand=True)
+        self.dropdown.listbox.pack(fill="both", expand=True)
 
         # vložení hodnot
         for val in stripped_values_list[:5]:
-            lb.insert(tk.END, val)
+            self.dropdown.listbox.insert(tk.END, val)
 
+        self.dropdown.listbox.selection_set(0)
+        self.dropdown.listbox.activate(0)
         # select event
-        lb.bind(
+        self.dropdown.listbox.bind(
             "<Double-Button-1>",
             lambda event: self.on_select(event)
         )
@@ -183,6 +201,10 @@ class EmailTab(Frame):
             add="+"
         )
 
+    def focus_dropdown(self, row):
+        if self.dropdown and hasattr(self.dropdown, "listbox"):
+            self.dropdown.listbox.focus_set()
+            self.dropdown.listbox.selection_set(0)
     def on_select(self, event):
         lb = event.widget
         selection = lb.curselection()
@@ -192,13 +214,40 @@ class EmailTab(Frame):
 
             row = self.active_row
             if self.rows.index(self.active_row) == len(self.rows) -1:
-                self.add_email()
+                statement = self.add_email()
+                if statement:
+                    self.refocus_entry(statement)
             self.dropdown.safe_destroy()
 
             email, exp_date, exp_time = self.selected_value_manager(value)
 
             row.safe_set_values(email, exp_date, exp_time)
 
+    def select_from_entry(self, row):
+
+        if not self.dropdown:
+            return
+
+        lb = self.dropdown.listbox
+        selection = lb.curselection()
+
+        if selection:
+            value = lb.get(selection[0])
+        else:
+            value = row.entry_email.get().strip()
+
+        email, exp_date, exp_time = self.selected_value_manager(value)
+
+        row.safe_set_values(email, exp_date, exp_time)
+
+        self.dropdown.safe_destroy()
+        statement = self.add_email()
+        if statement:
+            self.refocus_entry(statement)
+
+    def refocus_entry(self,row):
+        row.entry_email.focus_set()
+        pass
     @staticmethod
     def _pop_up_window(title, text):
         tkinter.messagebox.showinfo(title=title, message=text)
@@ -224,9 +273,10 @@ class EmailRow(Frame):
         self.exp_time = None
         self.email_body = None
         self.email = None
+        self.parent = parent
         self.config = config
         self.specific_email_preview = specific_email_preview
-
+        self.focus_dropdown_callback = parent.focus_dropdown
         # ------------------------------
         # Debounce callback pro live search
         # ------------------------------
@@ -250,6 +300,8 @@ class EmailRow(Frame):
         self.entry_email = Entry(self, width=25,textvariable=self.search_email_var)
         self.entry_email.grid(column=0, row=0, padx=5, pady=5)
 
+        self.entry_email.bind("<Down>", self.on_down)
+        self.entry_email.bind("<Return>", self.on_enter)
         # Label – placeholder
         self.label_date = Label(self, text='')
         self.label_date.grid(column=1, row=0, padx=15, pady=5)
@@ -266,6 +318,16 @@ class EmailRow(Frame):
         # Volá callback parentu, který řádek smaže z listu a přepočítá grid
         self.btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
         self.btn_delete.grid(column=4, row=0)
+
+    def on_enter(self, event):
+        self.parent.select_from_entry(self)
+        return "break"
+
+    def on_down(self, event):
+        if self.parent.dropdown:
+            self.parent.dropdown.listbox.focus_set()
+            self.parent.dropdown.listbox.selection_set(0)
+        return "break"
 
     def safe_set_values(self, email, exp_date, exp_time):
         self.is_updating = True
@@ -361,6 +423,10 @@ class EmailDropDownMenu(tk.Toplevel):
         except tk.TclError:
             pass
 
+    def focus_listbox(self):
+        self.listbox.focus_set()
+        self.listbox.selection_set(0)
+        self.listbox.activate(0)
     # =========================
     # DESTROY
     # =========================
@@ -374,7 +440,15 @@ class EmailDropDownMenu(tk.Toplevel):
             pass
 
 class SkullToggle(tk.Button):
+    """
+        Vlastní Tkinter button fungující jako toggle přepínač.
+
+        Button mění svůj vizuální stav po kliknutí:
+        - vypnutý stav = šedé pozadí
+        - zapnutý stav = žluté pozadí
+        """
     def __init__(self, master, **kwargs):
+        # inicializace základního Tkinter Button widgetu
         super().__init__(master, text="💀", width=4, **kwargs)
 
         self.state = False
@@ -383,10 +457,16 @@ class SkullToggle(tk.Button):
         self.update_style()
 
     def toggle(self):
+        """
+            Přepne aktuální stav buttonu.
+            """
         self.state = not self.state
         self.update_style()
 
     def update_style(self):
+        """
+            Nastaví vizuální styl buttonu podle aktuálního stavu.
+            """
         if self.state:
             self.config(
                 text="💀",
@@ -394,7 +474,6 @@ class SkullToggle(tk.Button):
                 activebackground="#fff59d",
                 relief="sunken"
             )
-            self.state = True
         else:
             self.config(
                 text="💀",
@@ -402,4 +481,3 @@ class SkullToggle(tk.Button):
                 activebackground="#eeeeee",
                 relief="raised"
             )
-            self.state = False
