@@ -118,6 +118,6 @@ def previous_workday(exp_date: str):
 
         # 0-4 = Po-Pá
         if t.weekday() < 5:
-            return t.strftime("%d.%m")
+            return t.strftime("%d.%m.%Y")
 
 

@@ -149,7 +149,6 @@ class EmailTab(Frame):
         """Vykreslí autocomplete dropdown"""
 
         values = self.excel_search(entry_val, self.df)
-
         # nic nenalezeno → zavři dropdown
         if not values:
             if self.dropdown:
@@ -171,7 +170,7 @@ class EmailTab(Frame):
             self.dropdown.destroy()
 
         # vytvoř nový dropdown
-        self.dropdown = EmailDropDownMenu(self.root, row)
+        self.dropdown = EmailDropDownMenu(self.root, row, self)
 
         # Listbox
         self.dropdown.listbox = Listbox(
@@ -246,7 +245,6 @@ class EmailTab(Frame):
 
     def refocus_entry(self,row):
         row.entry_email.focus_set()
-        pass
     @staticmethod
     def _pop_up_window(title, text):
         tkinter.messagebox.showinfo(title=title, message=text)
@@ -300,7 +298,8 @@ class EmailRow(Frame):
         self.entry_email.grid(column=0, row=0, padx=5, pady=5)
 
         self.entry_email.bind("<Down>", self.on_down)
-        self.entry_email.bind("<Return>", self.on_enter)
+
+
         # Label – placeholder
         self.label_date = Label(self, text='')
         self.label_date.grid(column=1, row=0, padx=15, pady=5)
@@ -318,14 +317,14 @@ class EmailRow(Frame):
         self.btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
         self.btn_delete.grid(column=4, row=0)
 
-    def on_enter(self, event):
-        self.parent.select_from_entry(self)
-        return "break"
+
 
     def on_down(self, event):
         if self.parent.dropdown:
             self.parent.dropdown.listbox.focus_set()
+            self.parent.dropdown.listbox.selection_clear(0, "end")
             self.parent.dropdown.listbox.selection_set(0)
+            self.parent.dropdown.listbox.activate(0)
         return "break"
 
     def safe_set_values(self, email, exp_date, exp_time):
@@ -352,11 +351,12 @@ class EmailRow(Frame):
 
 class EmailDropDownMenu(tk.Toplevel):
 
-    def __init__(self, root, row):
+    def __init__(self, root, row, parent):
         super().__init__(root)
 
         self.root = root
         self.row = row
+        self.parent = parent
 
         # bez title baru
         self.wm_overrideredirect(True)
@@ -371,11 +371,16 @@ class EmailDropDownMenu(tk.Toplevel):
         self.root.bind("<Configure>", self._on_window_move, add="+")
         self.root.bind("<Unmap>", self._on_minimize, add="+")
         self.root.bind("<<NotebookTabChanged>>", self._on_tab_change, add="+")
+        self.bind("<Return>", self.on_enter)
 
     # =========================
     # POSITION
     # =========================
+    def on_enter(self, event):
+        if self.parent.dropdown:
+            self.parent.on_select(event)
 
+        return "break"
     def update_position(self):
 
         try:
@@ -421,11 +426,6 @@ class EmailDropDownMenu(tk.Toplevel):
 
         except tk.TclError:
             pass
-
-    def focus_listbox(self):
-        self.listbox.focus_set()
-        self.listbox.selection_set(0)
-        self.listbox.activate(0)
     # =========================
     # DESTROY
     # =========================
@@ -450,33 +450,46 @@ class SkullToggle(tk.Button):
         # inicializace základního Tkinter Button widgetu
         super().__init__(master, text="💀", width=4, **kwargs)
 
-        self.state = False
-        self.config(command=self.toggle)
+        self.state = 1
+        self.config(command=self.cycle)
 
+
+    def cycle(self):
+        if self.state >= 3:
+            self.state = 1
+        else:
+            self.state += 1
         self.update_style()
 
-    def toggle(self):
-        """
-            Přepne aktuální stav buttonu.
-            """
-        self.state = not self.state
-        self.update_style()
 
     def update_style(self):
         """
             Nastaví vizuální styl buttonu podle aktuálního stavu.
             """
-        if self.state:
+        if self.state == 1:
             self.config(
                 text="💀",
-                bg="#fff176",
-                activebackground="#fff59d",
-                relief="sunken"
-            )
-        else:
-            self.config(
-                text="💀",
-                bg="#e0e0e0",
+                bg="#eeeeee",
                 activebackground="#eeeeee",
+                fg="black",
                 relief="raised"
             )
+            print(1)
+        elif self.state == 2:
+            self.config(
+                text="💀",
+                bg="#fff59d",
+                activebackground="#fff59d",
+                fg="black",
+                relief="groove"
+            )
+            print(2)
+        elif self.state == 3:
+            self.config(
+                text="💀",
+                bg="#8e2430",
+                activebackground="#8e2430",
+                fg="white",
+                relief="sunken"
+            )
+            print(3)
