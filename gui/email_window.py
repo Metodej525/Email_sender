@@ -298,6 +298,7 @@ class EmailRow(Frame):
         self.entry_email.grid(column=0, row=0, padx=5, pady=5)
 
         self.entry_email.bind("<Down>", self.on_down)
+        self.entry_email.bind("<Return>", self.on_enter)
 
 
         # Label – placeholder
@@ -317,8 +318,8 @@ class EmailRow(Frame):
         self.btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
         self.btn_delete.grid(column=4, row=0)
 
-
-
+    def on_enter(self,event):
+        self.parent.select_from_entry(self)
     def on_down(self, event):
         if self.parent.dropdown:
             self.parent.dropdown.listbox.focus_set()

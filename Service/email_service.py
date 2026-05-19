@@ -102,12 +102,17 @@ def html_converter(html_text):
     html = f"<p>{html}</p>"
     return html
 
-def importance_toggle(body):
+def importance_toggle(body,toggle_value):
     """Gives HTML text expect signature yellow background color"""
-    return body.replace(
-        "<span>",
-        '<span style="background-color:#fff59d;">'
-        )
+    if toggle_value == 2:
+        return body.replace(
+            "<span>",
+            '<span style="background-color:#fff59d;">'
+            )
+    elif toggle_value == 3:
+        return body.replace()
+    return None
+
 
 def previous_workday(exp_date: str):
     """calculate previous workday"""
