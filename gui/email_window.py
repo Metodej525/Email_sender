@@ -473,7 +473,6 @@ class SkullToggle(tk.Button):
                 fg="black",
                 relief="raised"
             )
-            print(1)
         elif self.state == 2:
             self.config(
                 text="💀",
@@ -482,7 +481,6 @@ class SkullToggle(tk.Button):
                 fg="black",
                 relief="groove"
             )
-            print(2)
         elif self.state == 3:
             self.config(
                 text="💀",
@@ -491,4 +489,3 @@ class SkullToggle(tk.Button):
                 fg="white",
                 relief="sunken"
             )
-            print(3)
