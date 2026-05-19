@@ -31,13 +31,12 @@ def check_email(rows):
 
     return checked_dict
 
-def email_sender(config,rows,toggle):
+def email_sender(config,rows,toggle_value):
     """sends email/s"""
     checked_dict = check_email(rows)
 
     for email, body in checked_dict.items():
-        if toggle:
-            body = importance_toggle(body)
+        body = importance_toggle(body,toggle_value)
         email_details(config, email, body)
 
 
@@ -110,8 +109,13 @@ def importance_toggle(body,toggle_value):
             '<span style="background-color:#fff59d;">'
             )
     elif toggle_value == 3:
-        return body.replace()
-    return None
+        return body.replace("<div>",
+                            "<div>Dobrý den,<br/>připomínám níže uvedené!"
+                            ).replace(
+            "<span>",
+            '<span style="background-color:#fff59d;">'
+            )
+    return body
 
 
 def previous_workday(exp_date: str):

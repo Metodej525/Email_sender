@@ -231,17 +231,15 @@ class EmailTab(Frame):
 
         if selection:
             value = lb.get(selection[0])
-        else:
-            value = row.entry_email.get().strip()
 
-        email, exp_date, exp_time = self.selected_value_manager(value)
+            email, exp_date, exp_time = self.selected_value_manager(value)
 
-        row.safe_set_values(email, exp_date, exp_time)
+            row.safe_set_values(email, exp_date, exp_time)
 
-        self.dropdown.safe_destroy()
-        statement = self.add_email()
-        if statement:
-            self.refocus_entry(statement)
+            self.dropdown.safe_destroy()
+            statement = self.add_email()
+            if statement:
+                self.refocus_entry(statement)
 
     def refocus_entry(self,row):
         row.entry_email.focus_set()
