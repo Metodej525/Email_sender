@@ -112,7 +112,7 @@ def importance_toggle(body,toggle_value):
             )
     elif toggle_value == 3:
         return body.replace("<div>",
-                            "<div>!!!!!Dobrý den,<br/>připomínám níže uvedené!!!!!<br/><br/>"
+                            "<div>Dobrý den,<br/>připomínám níže uvedené!!!!!<br/><br/>"
                             ).replace(
             "<span>",
             '<span style="background-color:#ffff00;">'
