@@ -104,13 +104,15 @@ def html_converter(html_text):
 def importance_toggle(body,toggle_value):
     """Gives HTML text expect signature yellow background color"""
     if toggle_value == 2:
-        return body.replace(
+        return body.replace("<div>",
+                            "<div>Dobrý den,<br/>připomínám níže uvedené!<br/><br/>"
+                            ).replace(
             "<span>",
             '<span style="background-color:#ffff00;">'
             )
     elif toggle_value == 3:
         return body.replace("<div>",
-                            "<div>Dobrý den,<br/>připomínám níže uvedené!<br/>"
+                            "<div>!!!!!Dobrý den,<br/>připomínám níže uvedené!!!!!<br/><br/>"
                             ).replace(
             "<span>",
             '<span style="background-color:#ffff00;">'
@@ -128,5 +130,3 @@ def previous_workday(exp_date: str):
         # 0-4 = Po-Pá
         if t.weekday() < 5:
             return t.strftime("%d.%m.%Y")
-
-

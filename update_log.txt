@@ -1,0 +1,11 @@
+v1.1.5
+- oprava navigaci v email dropdown menu pomocí šípek/enter pro potvrzení mailu
+- změna žluté barvy na sytější verzi
+- přidání 3 možností verze mailu pomocí tlačítka s lebkou. Šedivé = normální verze mailu, žluté = zažlucená část emailu, červená = přidáno připomenutí.
+v1.1.6
+- úprava templatu emailů při urgenci
+- Filtrování excelu jen pro typ certifikátů: Q-TW-CZ
+- Změna předmětu emailu na „Konec platnosti certifikátu“
+- Změna priority filtrování live search na login - Příjmení - Jméno
+
+
