@@ -1,6 +1,6 @@
 import constants as c
 from Repository.excel_repository import excel_raw_load
-from utils import remove_diacritics
+from core.utilities import remove_diacritics
 
 def excel_load(config):
     filepath = config.get(c.EXCEL_SECTION,c.EXCEL_PATH)

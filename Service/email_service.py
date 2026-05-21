@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 import constants as c
-from utils import remove_diacritics
+from core.utilities import remove_diacritics
 from email_validator import validate_email, EmailNotValidError
 from Service.email_details import email_details
 

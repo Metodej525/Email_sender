@@ -10,6 +10,8 @@ from pathlib import Path
 from tkinter import *
 from tkinter import ttk
 
+from core.log_setup import setup_logger
+
 from gui.email_preview_window import EmailPreviewTab
 from gui.email_window import EmailTab
 from gui.excel_window import ExcelTab
@@ -19,7 +21,7 @@ from Service.email_service import load_email_details, selected_value_manager, sp
 from Service.excel_service import excel_path_load, excel_search, excel_load
 from Service.signature_service import save_signature, load_signature_data
 
-from utils import safe_write_config
+from core.utilities import safe_write_config
 import constants as c
 
 if getattr(sys, 'frozen', False):
