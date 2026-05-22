@@ -7,7 +7,7 @@ ROOT_TITLE = '✉️'
 CONFIG_PATH = 'config.ini'
 CONFIG_ENCODING = 'UTF-8'
 
-LOG_PATH = 'log/log.jsonl'
+LOG_PATH = 'logs/logs.jsonl'
 
 EMAIL_SECTION = 'EMAIL'
 EMAIL_BODY_1 = 'body1'

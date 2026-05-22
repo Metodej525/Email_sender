@@ -9,5 +9,8 @@ v0.1.6
 - Filtrování excelu jen pro typ certifikátů: Q-TW-CZ
 - Změna předmětu emailu na „Konec platnosti certifikátu“
 - Změna priority filtrování live search na login - Příjmení - Jméno
+v0.1.7
+- přidán filtr pro uživatele s ukončeným pracovním poměrem
+- doděláno logování, loguje každý den max 10 dnů pak to ten nejstarší smaže. Logy jsou ne /logs
 
 

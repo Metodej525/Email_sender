@@ -4,13 +4,17 @@ from core.utilities import remove_diacritics
 from email_validator import validate_email, EmailNotValidError
 from Service.email_details import email_details
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def get_emails(rows):
     """gets email addresses from entries """
     email_dict = {}
     for row in rows:
         row_dict = row.row_to_dict()
         email_dict[row_dict['email']] = row_dict['email_body']
-
+        logger.debug(f"email loaded from entry {row_dict['email']} into dict")
     return email_dict
 
 def check_email(rows):
@@ -26,7 +30,7 @@ def check_email(rows):
             email = email_info.normalized
             checked_dict[email] = body
         except EmailNotValidError as e:
-            print(e)
+            logger.warning(f'email valid error: {e}')
             continue
 
     return checked_dict
@@ -38,10 +42,11 @@ def email_sender(config,rows,toggle_value):
     for email, body in checked_dict.items():
         body = importance_toggle(body,toggle_value)
         email_details(config, email, body)
-
+        logger.info(f"send email to: {email}")
 
 def email_none_state(checked_dict):
     """checks and deletes None values from dict"""
+    logger.debug('checked for none state in email dict')
     return {
         key: value
         for key, value in checked_dict.items()
@@ -59,7 +64,7 @@ def load_email_details(config):
     body3 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_3, fallback='')
     sign = config.get(c.EMAIL_SECTION, c.EMAIL_SIGN, fallback='')
 
-
+    logger.debug("default email details from config loaded")
     return {'smtp_server': smtp_server,
             'smtp_port': smtp_port,
             'username': username,
@@ -84,9 +89,9 @@ def selected_value_manager(value):
     exp_date, exp_time = exp.split()
     surname = remove_diacritics(raw_surname.lower())
     firstname = remove_diacritics(raw_firstname.lower())
-
+    logger.debug("diacritics removed")
     email = f"{firstname}.{surname}@ikem.cz"
-    print(email,exp_date, exp_time)
+    logger.debug(f'email set as: {email}, exp_date as: {exp_date}, exp_time as: {exp_time}')
     return email, exp_date, exp_time
 def html_converter(html_text):
     """Raw HTML body to plain text, used in preview tab"""
@@ -103,20 +108,24 @@ def html_converter(html_text):
 
 def importance_toggle(body,toggle_value):
     """Gives HTML text expect signature yellow background color"""
+    importance = 'nizka'
     if toggle_value == 2:
-        return body.replace("<div>",
+        importance = 'stredni'
+        body = body.replace("<div>",
                             "<div>Dobrý den,<br/>připomínám níže uvedené!<br/><br/>"
                             ).replace(
             "<span>",
             '<span style="background-color:#ffff00;">'
             )
     elif toggle_value == 3:
-        return body.replace("<div>",
+        importance = 'vysoka'
+        body = body.replace("<div>",
                             "<div>Dobrý den,<br/>připomínám níže uvedené!!!!!<br/><br/>"
                             ).replace(
             "<span>",
             '<span style="background-color:#ffff00;">'
             )
+    logger.debug(f"Email importance set: {toggle_value} -> {importance}")
     return body
 
 
@@ -126,7 +135,7 @@ def previous_workday(exp_date: str):
 
     while True:
         t -= timedelta(days=1)
-
         # 0-4 = Po-Pá
         if t.weekday() < 5:
+            logger.debug(f"expiration date set as: {t}")
             return t.strftime("%d.%m.%Y")

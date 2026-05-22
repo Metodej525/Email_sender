@@ -1,3 +1,4 @@
+import logging
 import smtplib
 import sys
 from email.mime.multipart import MIMEMultipart
@@ -63,6 +64,4 @@ def email_details(config,receiver, body):
     # Send the email
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.sendmail(sender_email, recipients, msg.as_string())
-
-    print("HTML email sent successfully!")
 
