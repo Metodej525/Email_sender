@@ -203,43 +203,32 @@ class EmailTab(Frame):
         if self.dropdown and hasattr(self.dropdown, "listbox"):
             self.dropdown.listbox.focus_set()
             self.dropdown.listbox.selection_set(0)
-    def on_select(self, event):
-        lb = event.widget
-        selection = lb.curselection()
-
-        if selection:
-            value = lb.get(selection[0])
-
-            row = self.active_row
-            if self.rows.index(self.active_row) == len(self.rows) -1:
-                statement = self.add_email()
-                if statement:
-                    self.refocus_entry(statement)
-            self.dropdown.safe_destroy()
-
-            email, exp_date, exp_time = self.selected_value_manager(value)
-
-            row.safe_set_values(email, exp_date, exp_time)
-
-    def select_from_entry(self, row):
-
+    def on_select(self, event=None ):
         if not self.dropdown:
             return
 
-        lb = self.dropdown.listbox
+        if event is not None and event.keysym != "Return":
+            lb = event.widget
+        else:
+            lb = self.dropdown.listbox
         selection = lb.curselection()
 
-        if selection:
-            value = lb.get(selection[0])
+        if not selection:
+            return
 
-            email, exp_date, exp_time = self.selected_value_manager(value)
+        value = lb.get(selection[0])
 
-            row.safe_set_values(email, exp_date, exp_time)
+        row = self.active_row
 
-            self.dropdown.safe_destroy()
+        if self.rows.index(self.active_row) == len(self.rows) -1:
             statement = self.add_email()
             if statement:
                 self.refocus_entry(statement)
+        self.dropdown.safe_destroy()
+
+        email, exp_date, exp_time = self.selected_value_manager(value)
+
+        row.safe_set_values(email, exp_date, exp_time)
 
     def refocus_entry(self,row):
         row.entry_email.focus_set()
@@ -317,7 +306,7 @@ class EmailRow(Frame):
         self.btn_delete.grid(column=4, row=0)
 
     def on_enter(self,event):
-        self.parent.select_from_entry(self)
+        self.parent.on_select(event)
     def on_down(self, event):
         if self.parent.dropdown:
             self.parent.dropdown.listbox.focus_set()

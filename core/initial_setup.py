@@ -1,6 +1,6 @@
 import json
 import logging
-from logging.handlers import TimedRotatingFileHandler
+from concurrent_log_handler import ConcurrentTimedRotatingFileHandler
 
 import configparser
 import os
@@ -8,6 +8,10 @@ import sys
 from pathlib import Path
 
 import constants as c
+
+import socket
+
+HOSTNAME = socket.gethostname()
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +24,13 @@ class PrettyJsonFormatter(logging.Formatter):
 
         data = {
             "time": self.formatTime(record, "%Y-%m-%d %H:%M:%S"),
+            "hostname": HOSTNAME,
             "level": record.levelname,
             "message": record.getMessage(),
         }
 
         # DEBUG a vyšší → přidej debug metadata
-        if record.levelno <= logging.DEBUG:
+        if record.levelno == logging.DEBUG:
             data.update({
                 "logger": record.name,
                 "file": record.filename,
@@ -47,7 +52,7 @@ def setup_logger():
     # - uchovává max 10 rotovaných souborů
     # - starší soubory smaže
     # - suffix určuje formát data v názvu rotovaných souborů
-    timed_handler = TimedRotatingFileHandler(filename=c.LOG_PATH,when='midnight',backupCount=10,encoding='utf-8')
+    timed_handler = ConcurrentTimedRotatingFileHandler(filename=c.LOG_PATH,when='midnight',backupCount=10,encoding='utf-8')
     timed_handler.suffix = "%Y%m%d"
 
     #set handlerů
@@ -73,6 +78,5 @@ def setup_config():
         config.read(filenames=CONFIG_PATH, encoding=c.CONFIG_ENCODING)
         logger.info(f"Config loaded with {CONFIG_PATH}")
     except configparser.ParsingError as e:
-        print(f"Error parsing the config file: {e}")
         logger.error(f"Config failed parsing with exception: {e}")
     return config

@@ -1,19 +1,11 @@
 from core.initial_setup import setup_logger, setup_config
 from core.gui_setup import setup_gui
 
-#inicializace logu
-setup_logger()
 
-#config.ini nacteni
-config = setup_config()
+def main():
+    setup_logger() #inicializace logu
+    config = setup_config() #config.ini nacteni
+    setup_gui(config) #inicializace gui
 
-#inicializace gui
-setup_gui(config)
-
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    main()

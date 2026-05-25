@@ -11,6 +11,6 @@ v0.1.6
 - Změna priority filtrování live search na login - Příjmení - Jméno
 v0.1.7
 - přidán filtr pro uživatele s ukončeným pracovním poměrem
-- doděláno logování, loguje každý den max 10 dnů pak to ten nejstarší smaže. Logy jsou ne /logs
+- doděláno logování, loguje každý den max 10 dnů pak to ten nejstarší smaže. Logy jsou na /logs
 
 
