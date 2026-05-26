@@ -1,6 +1,6 @@
 EmailSender
 ==============
-verze = 0.1.6
+verze = 0.1.7
 
 Aplikace slouží pro posílání emailů o upozornění vypršení podepisovacího certifikátu.
 Email má přednastavený HTML template, kde se mění jen datumy ohledně vypršení cert.

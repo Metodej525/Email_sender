@@ -23,7 +23,6 @@ def check_email(rows):
     raw_email_dict = get_emails(rows)
     checked_email_dict = email_none_state(raw_email_dict)
 
-
     for email,body in checked_email_dict.items():
         try:
             email_info = validate_email(str(email), check_deliverability=True)
@@ -32,7 +31,6 @@ def check_email(rows):
         except EmailNotValidError as e:
             logger.warning(f'email valid error: {e}')
             continue
-
     return checked_dict
 
 def email_sender(config,rows,toggle_value):

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from tkinter import Frame, Button, Entry, Label, StringVar, Listbox
 import tkinter as tk
 import tkinter.messagebox
@@ -326,16 +327,14 @@ class EmailRow(Frame):
             self.entry_email.insert(0, self.email)
 
             self.label_date.config(text=f"{exp_date} {exp_time}")
-
-
         finally:
             self.is_updating = False
-    def row_to_dict(self):
-        row_dict = {'exp_date': self.exp_date,
-                    'exp_time': self.exp_time,
-                    'email_body': self.email_body,
-                    'email': self.email}
-        return row_dict
+    def set_data(self):
+        return EmailData(exp_time=self.exp_time,
+                         exp_date=self.exp_date,
+                         email=self.email,
+                         email_body=self.email_body)
+
 
 class EmailDropDownMenu(tk.Toplevel):
 
@@ -478,3 +477,11 @@ class SkullToggle(tk.Button):
                 fg="white",
                 relief="sunken"
             )
+
+
+@dataclass
+class EmailData:
+    exp_date:str
+    exp_time:str
+    email_body:str
+    email:str
