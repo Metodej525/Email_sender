@@ -2,54 +2,46 @@ from datetime import timedelta, datetime
 import constants as c
 from core.utilities import remove_diacritics
 from email_validator import validate_email, EmailNotValidError
-from Service.email_details import email_details
+from infra.email_details import email_details
 
 import logging
 
 logger = logging.getLogger(__name__)
 
-def get_emails(rows):
-    """gets email addresses from entries """
-    email_dict = {}
-    for row in rows:
-        row_dict = row.row_to_dict()
-        email_dict[row_dict['email']] = row_dict['email_body']
-        logger.debug(f"email loaded from entry {row_dict['email']} into dict")
-    return email_dict
+def email_sender(config,data):
+    """sends email/s"""
+    email_none_state(data)
+    validate_emails(data)
 
-def check_email(rows):
-    """checks if email format is ok"""
-    checked_dict = {}
-    raw_email_dict = get_emails(rows)
-    checked_email_dict = email_none_state(raw_email_dict)
+    for email_row in data:
+        email_body = set_email_body(config,email_row)
+        email_body = importance_toggle(email_body,email_row.importance)
+        email_details(config, email_row.valid_email, email_body)
+        logger.info(f"send email to: {email_row.valid_email}")
 
-    for email,body in checked_email_dict.items():
+def email_none_state(data):
+    """checks and deletes None values from dict"""
+    logger.debug('checked for none state in email dict')
+    for email_row in data:
+        if email_row.email is None:
+            email_row.remove()
+def validate_emails(data):
+    for email_row in data:
         try:
-            email_info = validate_email(str(email), check_deliverability=True)
-            email = email_info.normalized
-            checked_dict[email] = body
+            email_info = validate_email(str(email_row.email), check_deliverability=True)
+            email_row.valid_email = email_info.normalized
         except EmailNotValidError as e:
             logger.warning(f'email valid error: {e}')
             continue
-    return checked_dict
-
-def email_sender(config,rows,toggle_value):
-    """sends email/s"""
-    checked_dict = check_email(rows)
-
-    for email, body in checked_dict.items():
-        body = importance_toggle(body,toggle_value)
-        email_details(config, email, body)
-        logger.info(f"send email to: {email}")
-
-def email_none_state(checked_dict):
-    """checks and deletes None values from dict"""
-    logger.debug('checked for none state in email dict')
-    return {
-        key: value
-        for key, value in checked_dict.items()
-        if key
-    }
+def set_email_body(config,email_row):
+    """loads preview of email in specific row and returns it"""
+    body1 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_1, fallback='')
+    body2 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_2, fallback='')
+    body3 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_3, fallback='')
+    sign =  config.get(c.EMAIL_SECTION, c.EMAIL_SIGN, fallback='')
+    minus_exp_date = previous_workday(email_row.exp_date)
+    email_body = f'{body1} {email_row.exp_date} {email_row.exp_time} {body2} {minus_exp_date} {body3} {sign}'
+    return email_body
 def load_email_details(config):
     """loads all email props and returns them as dict"""
     smtp_server = config.get(c.EMAIL_SECTION, c.EMAIL_SMTP_SERVER, fallback='')
@@ -70,17 +62,7 @@ def load_email_details(config):
             'subject': subject,
             'body': f'{body1} datum {body2} datum {body3} {sign}'
             }
-def specific_email_preview(config,exp_date,exp_time):
-    """loads preview of email in specific row and returns it"""
-    body1 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_1, fallback='')
-    body2 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_2, fallback='')
-    body3 = config.get(c.EMAIL_SECTION, c.EMAIL_BODY_3, fallback='')
-    sign =  config.get(c.EMAIL_SECTION, c.EMAIL_SIGN, fallback='')
-    minus_exp_date = previous_workday(exp_date)
 
-
-    body = f'{body1} {exp_date} {exp_time} {body2} {minus_exp_date} {body3} {sign}'
-    return body
 def selected_value_manager(value):
     """loads on_select values and props them + makes email str"""
     raw_surname, raw_firstname, login, cert_type, exp = [x.strip() for x in value.split(',')]
@@ -104,28 +86,27 @@ def html_converter(html_text):
     html = f"<p>{html}</p>"
     return html
 
-def importance_toggle(body,toggle_value):
+def importance_toggle(email_body,importance_value):
     """Gives HTML text expect signature yellow background color"""
     importance = 'nizka'
-    if toggle_value == 2:
+    if importance_value == 2:
         importance = 'stredni'
-        body = body.replace("<div>",
+        email_body = email_body.replace("<div>",
                             "<div>Dobrý den,<br/>připomínám níže uvedené!<br/><br/>"
                             ).replace(
             "<span>",
             '<span style="background-color:#ffff00;">'
             )
-    elif toggle_value == 3:
+    elif importance_value == 3:
         importance = 'vysoka'
-        body = body.replace("<div>",
+        email_body = email_body.replace("<div>",
                             "<div>Dobrý den,<br/>připomínám níže uvedené!!!!!<br/><br/>"
                             ).replace(
             "<span>",
             '<span style="background-color:#ffff00;">'
             )
-    logger.debug(f"Email importance set: {toggle_value} -> {importance}")
-    return body
-
+    logger.debug(f"Email importance set: {importance_value} -> {importance}")
+    return email_body
 
 def previous_workday(exp_date: str):
     """calculate previous workday"""

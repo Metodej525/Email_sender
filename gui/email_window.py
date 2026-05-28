@@ -114,7 +114,8 @@ class EmailTab(Frame):
         """Potvrzení a odeslání emailu"""
         if tkinter.messagebox.askquestion(title='', message='Odeslat email?') == 'yes':
             self._pop_up_window('', 'Email byl odeslán')
-            self.email_sender(self.config,self.rows,self.active_row.btn_importance.state)
+            data = [row.set_data() for row in self.rows]
+            self.email_sender(data)
             self.reset_rows()
 
     def reset_rows(self):
@@ -256,7 +257,6 @@ class EmailRow(Frame):
         self.search_email_var = StringVar() # propojení Entry ↔ live search
         self.exp_date = None
         self.exp_time = None
-        self.email_body = None
         self.email = None
         self.parent = parent
         self.config = config
@@ -322,7 +322,7 @@ class EmailRow(Frame):
             self.email = email
             self.exp_date = exp_date
             self.exp_time = exp_time
-            self.email_body = self.specific_email_preview(self.config, self.exp_date, self.exp_time)
+
             self.entry_email.delete(0, tk.END)
             self.entry_email.insert(0, self.email)
 
@@ -333,7 +333,9 @@ class EmailRow(Frame):
         return EmailData(exp_time=self.exp_time,
                          exp_date=self.exp_date,
                          email=self.email,
-                         email_body=self.email_body)
+                         importance=self.btn_importance.state,
+                         valid_email='',
+                         email_body='')
 
 
 class EmailDropDownMenu(tk.Toplevel):
@@ -481,7 +483,9 @@ class SkullToggle(tk.Button):
 
 @dataclass
 class EmailData:
-    exp_date:str
-    exp_time:str
-    email_body:str
-    email:str
+    exp_date: str
+    exp_time: str
+    email_body: str
+    email: str
+    importance:int
+    valid_email:str
