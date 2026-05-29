@@ -7,7 +7,7 @@ from tkhtmlview import HTMLLabel
 
 
 class EmailTab(Frame):
-    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager,html_converter,email_sender,specific_email_preview):
+    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager,html_converter,EmailSendManager, email_details):
         super().__init__(notebook)
 
         # --- state ---
@@ -18,12 +18,12 @@ class EmailTab(Frame):
         self.df = df
         self.btn_send_email = None
         self.selected_value_manager = selected_value_manager
-        self.specific_email_preview = specific_email_preview
         self.html_converter = html_converter
-        self.email_sender = email_sender
+        self.EmailSendManager = EmailSendManager
         self.dropdown = None
         self.toolbox()
         self.default_row()
+        self.email_details = email_details
 
 
 
@@ -34,7 +34,7 @@ class EmailTab(Frame):
 
     def default_row(self):
         """Inicializuje první (defaultní) řádek"""
-        row = EmailRow(self, self.config, self.remove_row, self.email_preview,self.specific_email_preview)
+        row = EmailRow(self, self.config, self.remove_row, self.email_preview)
         row.grid(row=len(self.rows) + 1, column=0, columnspan=6, sticky="w")
 
         self.rows.append(row)
@@ -66,7 +66,6 @@ class EmailTab(Frame):
                 self.config,
                 self.remove_row,
                 self.email_preview,
-                self.specific_email_preview
             )
 
             self.rows.append(row)
@@ -115,7 +114,9 @@ class EmailTab(Frame):
         if tkinter.messagebox.askquestion(title='', message='Odeslat email?') == 'yes':
             self._pop_up_window('', 'Email byl odeslán')
             data = [row.set_data() for row in self.rows]
-            self.email_sender(data)
+
+            sender = self.EmailSendManager(self.config,data,self.email_details)
+            sender.email_sender()
             self.reset_rows()
 
     def reset_rows(self):
@@ -231,7 +232,7 @@ class EmailTab(Frame):
         email, exp_date, exp_time = self.selected_value_manager(value)
 
         row.safe_set_values(email, exp_date, exp_time)
-
+        row.set_data()
     def refocus_entry(self,row):
         row.entry_email.focus_set()
     @staticmethod
@@ -248,7 +249,7 @@ class EmailRow(Frame):
     - Tlačítko pro náhled / preview emailu
     """
 
-    def __init__(self, parent, config, remove_callback, preview_callback, specific_email_preview):
+    def __init__(self, parent, config, remove_callback, preview_callback):
         super().__init__(parent)
 
         # --- internal state ---
@@ -260,8 +261,13 @@ class EmailRow(Frame):
         self.email = None
         self.parent = parent
         self.config = config
-        self.specific_email_preview = specific_email_preview
         self.focus_dropdown_callback = parent.focus_dropdown
+        self.data = EmailData(exp_time='',
+                         exp_date='',
+                         email='',
+                         importance=1,
+                         valid_email='',
+                         email_body='')
         # ------------------------------
         # Debounce callback pro live search
         # ------------------------------
@@ -298,7 +304,7 @@ class EmailRow(Frame):
         self.btn_preview = Button(self, text="🔎", command=lambda: preview_callback(self))
         self.btn_preview.grid(column=2, row=0)
 
-        self.btn_importance = SkullToggle(self)
+        self.btn_importance = SkullToggle(self,self.data)
         self.btn_importance.grid(column=3,row=0)
 
         # Tlačítko pro odstranění řádku
@@ -330,12 +336,11 @@ class EmailRow(Frame):
         finally:
             self.is_updating = False
     def set_data(self):
-        return EmailData(exp_time=self.exp_time,
-                         exp_date=self.exp_date,
-                         email=self.email,
-                         importance=self.btn_importance.state,
-                         valid_email='',
-                         email_body='')
+        self.data.email = self.email
+        self.data.exp_date = self.exp_date
+        self.data.exp_time = self.exp_time
+
+        return self.data
 
 
 class EmailDropDownMenu(tk.Toplevel):
@@ -361,7 +366,7 @@ class EmailDropDownMenu(tk.Toplevel):
         self.root.bind("<Unmap>", self._on_minimize, add="+")
         self.root.bind("<<NotebookTabChanged>>", self._on_tab_change, add="+")
         self.bind("<Return>", self.on_enter)
-
+        self.root.bind("<Button-1>", self.on_click_outside)
     # =========================
     # POSITION
     # =========================
@@ -435,21 +440,23 @@ class SkullToggle(tk.Button):
         - vypnutý stav = šedé pozadí
         - zapnutý stav = žluté pozadí
         """
-    def __init__(self, master, **kwargs):
+    def __init__(self, master,data, **kwargs):
         # inicializace základního Tkinter Button widgetu
         super().__init__(master, text="💀", width=4, **kwargs)
 
+        self.data = data
         self.state = 1
-        self.config(command=self.cycle)
+        self.config(command=lambda: self.cycle(self.data))
+        self.master = master
 
 
-    def cycle(self):
+    def cycle(self,data):
         if self.state >= 3:
             self.state = 1
         else:
             self.state += 1
         self.update_style()
-
+        self.set_state(data)
 
     def update_style(self):
         """
@@ -479,7 +486,8 @@ class SkullToggle(tk.Button):
                 fg="white",
                 relief="sunken"
             )
-
+    def set_state(self,data):
+        data.importance = self.state
 
 @dataclass
 class EmailData:

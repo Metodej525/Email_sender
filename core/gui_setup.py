@@ -6,9 +6,12 @@ from gui.email_window import EmailTab
 from gui.excel_window import ExcelTab
 from gui.signature_window import SignatureTab
 
-from Service.email_service import load_email_details, selected_value_manager, specific_email_preview, html_converter, email_sender
+from Service.email_preview_service import load_email_details, html_converter
+from Service.email_service import selected_value_manager, EmailSendManager
 from Service.excel_service import excel_path_load, excel_search, excel_load
 from Service.signature_service import save_signature, load_signature_data
+
+from infra.email_details import email_details
 
 from core.utilities import safe_write_config
 import constants as c
@@ -28,7 +31,7 @@ def setup_gui(config):
     email_preview_tab = EmailPreviewTab(notebook, load_email_details, html_converter, config)
     excel_tab = ExcelTab(notebook, excel_path_load, safe_write_config, config, excel_load)
     email_tab = EmailTab(notebook, root, excel_search, config, excel_tab.df, selected_value_manager, html_converter,
-                         email_sender, specific_email_preview)
+                         EmailSendManager,email_details)
 
     notebook.add(email_tab, text="Email")
     notebook.add(email_preview_tab, text='Náhled emialu')
