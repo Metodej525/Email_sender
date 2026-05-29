@@ -56,4 +56,3 @@ def setup_gui(config):
     root.geometry("500x150")
     logger.info("app started")
     root.mainloop()
-

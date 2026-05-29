@@ -1,7 +1,6 @@
 from datetime import timedelta, datetime
 import constants as c
 from core.utilities import remove_diacritics
-from email_validator import validate_email, EmailNotValidError
 
 
 import logging
@@ -13,7 +12,8 @@ class EmailSendManager:
     def __init__(self,config,email_data,email_details):
         self.config = config
         self.email_data =  email_data #EmailData instances wrapped in list
-        self.email_details = email_details
+        self.email_details = email_details #INFRA email function
+        self.valid_data = []
 
     def email_body_constructor(self,email_row):
         """loads preview of email in specific row and returns it"""
@@ -53,28 +53,21 @@ class EmailSendManager:
 
             email_row.email_body = body
 
-    def email_validator(self):
-        for email_row in self.email_data:
-            try:
-                email_info = validate_email(str(email_row.email), check_deliverability=True)
-                email_row.valid_email = email_info.normalized
-            except EmailNotValidError as e:
-                logger.warning(f'email valid error: {e}')
-                continue
-
     def email_non_state_checker(self):
         """checks and deletes None values from dict"""
         logger.debug('checked for none state in email dict')
+        invalid_data = []
         for email_row in self.email_data:
-            if email_row.email is None:
-                self.email_data.remove(email_row)
+            if email_row.email is None or email_row.email == '':
+                invalid_data.append(email_row)
+            else:
+                self.valid_data.append(email_row)
 
     def prepare_data(self):
         self.email_non_state_checker()
-        self.email_validator()
         self.set_email_body()
     def email_sender(self):
-        for email_row in self.email_data:
+        for email_row in self.valid_data:
             self.email_details(self.config, email_row.valid_email, email_row.email_body)
             logger.info(f"send email to: {email_row.valid_email}")
 
@@ -82,8 +75,8 @@ def selected_value_manager(value):
     """loads on_select values and props them + makes email str"""
     raw_surname, raw_firstname, login, cert_type, exp = [x.strip() for x in value.split(',')]
     exp_date, exp_time = exp.split()
-    surname = remove_diacritics(raw_surname.lower())
-    firstname = remove_diacritics(raw_firstname.lower())
+    surname = remove_diacritics(raw_surname.lower().replace(' ','.'))
+    firstname = remove_diacritics(raw_firstname.lower().replace(' ','.'))
     logger.debug("diacritics removed")
     email = f"{firstname}.{surname}@ikem.cz"
     logger.debug(f'email set as: {email}, exp_date as: {exp_date}, exp_time as: {exp_time}')

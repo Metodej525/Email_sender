@@ -64,5 +64,3 @@ def excel_path_load(config,path,safe_write_config):
     config.set(c.EXCEL_SECTION, c.EXCEL_PATH, path)
     safe_write_config(config, c.CONFIG_PATH)
     logger.debug(f"reloaded excel path: {path}")
-
-
