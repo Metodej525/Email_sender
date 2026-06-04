@@ -7,23 +7,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
-class EmailSendManager:
-    def __init__(self,config,email_data,email_details):
+class EmailConstructor:
+    def __init__(self, config, data):
+        self.data = data
         self.config = config
-        self.email_data =  email_data #EmailData instances wrapped in list
-        self.email_details = email_details #INFRA email function
-        self.valid_data = []
-
-    def email_body_constructor(self,email_row):
-        """loads preview of email in specific row and returns it"""
-        body1 = self.config.get(c.EMAIL_SECTION, c.EMAIL_BODY_1, fallback='')
-        body2 = self.config.get(c.EMAIL_SECTION, c.EMAIL_BODY_2, fallback='')
-        body3 = self.config.get(c.EMAIL_SECTION, c.EMAIL_BODY_3, fallback='')
-        sign = self.config.get(c.EMAIL_SECTION, c.EMAIL_SIGN, fallback='')
-        minus_exp_date = previous_workday(email_row.exp_date)
-        email_body = f'{body1} {email_row.exp_date} {email_row.exp_time} {body2} {minus_exp_date} {body3} {sign}'
-        return email_body
 
     def importance_toggle(self,email_body,importance_value):
         """Gives HTML text expect signature yellow background color"""
@@ -46,12 +33,37 @@ class EmailSendManager:
             )
         logger.debug(f"Email importance set: {importance_value} -> {importance}")
         return email_body
-    def set_email_body(self):
-        for email_row in self.email_data:
-            body = self.email_body_constructor(email_row)
-            body = self.importance_toggle(body, email_row.importance)
 
-            email_row.email_body = body
+    def email_body_constructor(self,email_row):
+        """loads preview of email in specific row and returns it"""
+        body1 = self.config.get(c.EMAIL_SECTION, c.EMAIL_BODY_1, fallback='')
+        body2 = self.config.get(c.EMAIL_SECTION, c.EMAIL_BODY_2, fallback='')
+        body3 = self.config.get(c.EMAIL_SECTION, c.EMAIL_BODY_3, fallback='')
+        sign = self.config.get(c.EMAIL_SECTION, c.EMAIL_SIGN, fallback='')
+        minus_exp_date = previous_workday(email_row.exp_date)
+        email_body = f'{body1} {email_row.exp_date} {email_row.exp_time} {body2} {minus_exp_date} {body3} {sign}'
+        return email_body
+
+    def set_email_body(self):
+        if isinstance(self.data,list):
+            for email_row in self.data:
+                body = self.email_body_constructor(email_row)
+                body = self.importance_toggle(body, email_row.importance)
+
+                email_row.email_body = body
+            logger.debug('email body constructed')
+
+        body = self.email_body_constructor(self.data)
+        body = self.importance_toggle(body, self.data.importance)
+
+        self.data.email_body = body
+
+class EmailSendManager:
+    def __init__(self,config,email_data,email_details):
+        self.config = config
+        self.email_data =  email_data #EmailData instances wrapped in list
+        self.email_details = email_details #INFRA email function
+        self.valid_data = []
 
     def email_non_state_checker(self):
         """checks and deletes None values from dict"""
@@ -62,14 +74,14 @@ class EmailSendManager:
                 invalid_data.append(email_row)
             else:
                 self.valid_data.append(email_row)
+        logger.debug(f"valid data: {self.valid_data}")
+        logger.debug('loaded email data non status checked')
 
-    def prepare_data(self):
-        self.email_non_state_checker()
-        self.set_email_body()
     def email_sender(self):
+        self.email_non_state_checker()
         for email_row in self.valid_data:
-            self.email_details(self.config, email_row.valid_email, email_row.email_body)
-            logger.info(f"send email to: {email_row.valid_email}")
+            self.email_details(self.config, email_row.email, email_row.email_body)
+            logger.info(f"send email to: {email_row.email}")
 
 def selected_value_manager(value):
     """loads on_select values and props them + makes email str"""

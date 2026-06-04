@@ -1,4 +1,3 @@
-import logging
 import smtplib
 import sys
 from email.mime.multipart import MIMEMultipart

@@ -7,7 +7,9 @@ from tkhtmlview import HTMLLabel
 
 
 class EmailTab(Frame):
-    def __init__(self, notebook, root, excel_search, config, df,selected_value_manager,html_converter,EmailSendManager, email_details):
+    def __init__(self, notebook, root, excel_search, config,
+                 df,selected_value_manager,html_converter,
+                 EmailSendManager, email_details, EmailConstructor):
         super().__init__(notebook)
 
         # --- state ---
@@ -20,10 +22,12 @@ class EmailTab(Frame):
         self.selected_value_manager = selected_value_manager
         self.html_converter = html_converter
         self.EmailSendManager = EmailSendManager
+        self.EmailConstructor = EmailConstructor
         self.dropdown = None
         self.toolbox()
         self.default_row()
         self.email_details = email_details
+
 
 
 
@@ -34,7 +38,12 @@ class EmailTab(Frame):
 
     def default_row(self):
         """Inicializuje první (defaultní) řádek"""
-        row = EmailRow(self, self.config, self.remove_row, self.email_preview)
+        row = EmailRow( self, self.config,
+                        self.remove_row,
+                        self.EmailConstructor,
+                        self.html_converter,
+                        self.root
+                       )
         row.grid(row=len(self.rows) + 1, column=0, columnspan=6, sticky="w")
 
         self.rows.append(row)
@@ -65,7 +74,9 @@ class EmailTab(Frame):
                 self,
                 self.config,
                 self.remove_row,
-                self.email_preview,
+                self.EmailConstructor,
+                self.html_converter,
+                self.root
             )
 
             self.rows.append(row)
@@ -109,12 +120,17 @@ class EmailTab(Frame):
             self.btn_send_email.destroy()
         self.create_send_btn(len(self.rows) + 1)
         self.check_add_email_btn_grid()
+
     def send_email(self):
         """Potvrzení a odeslání emailu"""
         if tkinter.messagebox.askquestion(title='', message='Odeslat email?') == 'yes':
             self._pop_up_window('', 'Email byl odeslán')
-            data = [row.set_data() for row in self.rows]
-
+            data = [
+                row.set_data()
+                for row in self.rows
+                if row.email and row.email.strip()
+            ]
+            self.EmailConstructor(self.config,data)
             sender = self.EmailSendManager(self.config,data,self.email_details)
             sender.email_sender()
             self.reset_rows()
@@ -126,20 +142,6 @@ class EmailTab(Frame):
 
         self.rows.clear()
         self.default_row()
-
-    def email_preview(self, row):
-        """Debug preview (index řádku)"""
-        text = row.email_body
-        converted_text = self.html_converter(text)
-
-        if row in self.rows:
-            label_text = converted_text
-        else:
-            label_text = ':('
-
-        popup = tk.Toplevel(self.root)
-        popup.wm_title("🔎")
-        HTMLLabel(popup, html=label_text,height=30,padx=25,pady=25).pack()
 
     def on_search_change(self, row):
         """Trigger live search (debounced z EmailRow)"""
@@ -249,10 +251,11 @@ class EmailRow(Frame):
     - Tlačítko pro náhled / preview emailu
     """
 
-    def __init__(self, parent, config, remove_callback, preview_callback):
+    def __init__(self, parent, config, remove_callback, EmailConstructor, html_converter,root):
         super().__init__(parent)
 
         # --- internal state ---
+        self.root = root
         self._after_id = None               # uchovává ID 'after' pro debounce
         self.is_updating = False  # flag pro regulaci trace_callback
         self.search_email_var = StringVar() # propojení Entry ↔ live search
@@ -262,11 +265,12 @@ class EmailRow(Frame):
         self.parent = parent
         self.config = config
         self.focus_dropdown_callback = parent.focus_dropdown
+        self.EmailConstructor = EmailConstructor
+        self.html_converter = html_converter
         self.data = EmailData(exp_time='',
                          exp_date='',
                          email='',
                          importance=1,
-                         valid_email='',
                          email_body='')
         # ------------------------------
         # Debounce callback pro live search
@@ -294,14 +298,13 @@ class EmailRow(Frame):
         self.entry_email.bind("<Down>", self.on_down)
         self.entry_email.bind("<Return>", self.on_enter)
 
-
         # Label – placeholder
         self.label_date = Label(self, text='')
         self.label_date.grid(column=1, row=0, padx=15, pady=5)
 
         # Tlačítko pro náhled / preview
         # Volá parent callback, např. otevře popup s informacemi
-        self.btn_preview = Button(self, text="🔎", command=lambda: preview_callback(self))
+        self.btn_preview = Button(self, text="🔎", command=self.email_preview)
         self.btn_preview.grid(column=2, row=0)
 
         self.btn_importance = SkullToggle(self,self.data)
@@ -312,8 +315,20 @@ class EmailRow(Frame):
         self.btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
         self.btn_delete.grid(column=4, row=0)
 
+    def email_preview(self):
+        """Debug preview (index řádku)"""
+        self.EmailConstructor(self.config,self.data).set_email_body()
+        text = self.data.email_body
+        converted_text = self.html_converter(text)
+
+        popup = tk.Toplevel(self.parent)
+        popup.wm_title("🔎")
+
+        HTMLLabel(popup, html=converted_text,height=30,padx=25,pady=25).pack()
+
     def on_enter(self,event):
         self.parent.on_select(event)
+
     def on_down(self, event):
         if self.parent.dropdown:
             self.parent.dropdown.listbox.focus_set()
@@ -458,6 +473,7 @@ class SkullToggle(tk.Button):
         self.update_style()
         self.set_state(data)
 
+
     def update_style(self):
         """
             Nastaví vizuální styl buttonu podle aktuálního stavu.
@@ -496,4 +512,3 @@ class EmailData:
     email_body: str
     email: str
     importance:int
-    valid_email:str
