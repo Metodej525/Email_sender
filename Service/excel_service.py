@@ -1,19 +1,42 @@
 import constants as c
-from Repository.excel_repository import excel_raw_load
+import pandas as pd
 from core.utilities import remove_diacritics
 import logging
 
 logger = logging.getLogger(__name__)
 
-def excel_load(config):
-    filepath = config.get(c.EXCEL_SECTION,c.EXCEL_PATH)
-    try:
-        df = excel_raw_load(filepath)
-        logger.info("loaded excel successfully")
-        return initial_filter(df)
-    except Exception as e:
-        logger.error(f"failed to load excel with exception: {e}")
-        raise
+class ExcelLoader:
+    def __init__(self,config, excel_raw_load, selected_sheet_input:None):
+        self.excel_raw_load = excel_raw_load
+        self.config = config
+        self.filepath = config.get(c.EMAIL_SECTION,c.EXCEL_PATH)
+        self.selected_sheet_input = selected_sheet_input
+
+    def excel_load(self):
+        filepath = self.config.get(c.EXCEL_SECTION,c.EXCEL_PATH)
+        selected_sheet= self.selected_sheet()
+        try:
+            df = self.excel_raw_load(filepath,selected_sheet)
+            logger.info("loaded excel successfully")
+            return initial_filter(df)
+        except Exception as e:
+            logger.error(f"failed to load excel with exception: {e}")
+            raise
+
+    def sheet_checker(self):
+        excel_file = pd.ExcelFile(self.filepath)
+        return excel_file.sheet_names
+
+    def number_of_sheets(self):
+        sheets = self.sheet_checker()
+        return len(sheets)
+
+    def selected_sheet(self):
+        if not self.selected_sheet_input:
+            self.selected_sheet_input = 0
+        sheets = self.sheet_checker()
+        selected_sheet = sheets[self.selected_sheet_input]
+        return selected_sheet
 
 def initial_filter(df):
     """vyfiltruje jen certifikáty typu Q-TW-CZ + všechny kromě ukončených v pp"""
