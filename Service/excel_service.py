@@ -25,7 +25,7 @@ class ExcelLoader:
 
 class SheetManager:
     def __init__(self,config):
-        self.filepath = config.get(c.EMAIL_SECTION, c.EXCEL_PATH)
+        self.filepath = config.get(c.EXCEL_SECTION, c.EXCEL_PATH)
         self.selected_sheet = None
 
     def sheet_checker(self):

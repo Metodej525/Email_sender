@@ -1,4 +1,4 @@
-from tkinter import Label, Frame
+from tkinter import Label, Frame, Button
 from tkhtmlview import HTMLLabel
 
 class EmailPreviewTab(Frame):
@@ -18,13 +18,22 @@ class EmailPreviewTab(Frame):
         self.load_email_details = load_email_details(config)
         self.html_converter = html_converter
 
+
+
         for row, (key, (label_text, config_text)) in enumerate(self.FIELDS.items()):
-            Label(self,text=label_text).grid(column=0,row=row,sticky="nw",padx=5,pady=5)
+            Label(self,text=label_text).grid(column=0,row=row + 1,sticky="nw",padx=5,pady=5)
             config_value = config.get('EMAIL', config_text, fallback='')
-            Label(self,text=config_value).grid(column=1,row=row,sticky="nw",padx=5,pady=5)
+            Label(self,text=config_value).grid(column=1,row=row + 1,sticky="nw",padx=5,pady=5)
 
         html = self.html_converter(self.load_email_details['body'])
 
 
         email_label = HTMLLabel(self, html=html,height=100,width=100)
-        email_label.grid(column=1, row=3, padx=25, pady=0)
+        email_label.grid(column=1, row=4, padx=25, pady=0)
+        self.create_template_btns()
+    def create_template_btns(self):
+        template_fields = ['střední','vysoká','nejvyšší']
+        for column, template in enumerate(template_fields):
+            Button(self,text=template,command=lambda: self.switch_template(template)).grid(column=0,row=5+column)
+    def switch_template(self,template):
+        pass

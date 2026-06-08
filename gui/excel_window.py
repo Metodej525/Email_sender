@@ -50,10 +50,9 @@ class ExcelTab(Frame):
         self.initial_excel_load()
 
     def initial_excel_load(self):
-        sheet_list, number_of_sheets = self.SheetManager(self.config).number_of_sheets()
-
         try:
-            self.ExcelLoader(self.config,self.excel_raw_load,sheet_list[0]).excel_load()
+            sheet_list, number_of_sheets = self.SheetManager(self.config).sheet_checker()
+            self.df = self.ExcelLoader(self.config,self.excel_raw_load,sheet_list[0]).excel_load()
             self.sheet_button(number_of_sheets, sheet_list)
         except Exception as e:
             excel_error_label = Label(

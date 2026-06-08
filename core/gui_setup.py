@@ -10,7 +10,7 @@ from gui.signature_window import SignatureTab
 
 from Service.email_preview_service import load_email_details
 from Service.email_service import selected_value_manager, EmailSendManager, EmailConstructor
-from Service.excel_service import excel_path_load, excel_search, ExcelLoader
+from Service.excel_service import excel_search, ExcelLoader, SheetManager, excel_path_load
 from Service.signature_service import save_signature, load_signature_data
 
 from infra.email_details import email_details
@@ -31,19 +31,19 @@ def setup_gui(config):
     root.option_add("*Font", ("Arial", 12))
 
     # signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
-    # email_preview_tab = EmailPreviewTab(notebook, load_email_details, html_converter, config)
-    excel_tab = ExcelTab(notebook,safe_write_config, config, ExcelLoader, excel_raw_load)
+    email_preview_tab = EmailPreviewTab(notebook, load_email_details, html_converter, config)
+    excel_tab = ExcelTab(notebook,safe_write_config, config, ExcelLoader, excel_raw_load, SheetManager, excel_path_load)
     email_tab = EmailTab(notebook, root, excel_search, config, excel_tab.df, selected_value_manager, html_converter,
                          EmailSendManager,email_details, EmailConstructor)
 
     notebook.add(email_tab, text="Email")
-    # notebook.add(email_preview_tab, text='Náhled emialu')
+    notebook.add(email_preview_tab, text='Náhled emialu')
     # notebook.add(signature_tab, text="Signature")
     notebook.add(excel_tab, text="Excel")
 
     TAB_FIELDS = {
         email_tab: '700x350',
-        # email_preview_tab: '1200x600',
+        email_preview_tab: '1200x600',
         # signature_tab: '300x200',
         excel_tab: '600x300'
     }
