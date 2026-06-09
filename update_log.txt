@@ -12,7 +12,9 @@ v0.1.6
 v0.1.7
 - přidán filtr pro uživatele s ukončeným pracovním poměrem
 - doděláno multi-thread multi-instance logování, loguje každý den max 10 dnů pak to ten nejstarší smaže. Logy jsou na /logs
-v0.1.7.5
+v1.0
 - upraven návrh emialové zprávy.
-- opraven náhled emailu v vprní záložce
+- opraven náhled emailu v první záložce
+- přídána možnost výběru listů v excelu
+- přidány všechny typy náhledů v okně 'Náhled'
 
