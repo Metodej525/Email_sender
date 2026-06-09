@@ -8,31 +8,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 class EmailConstructor:
-    def __init__(self, config, data):
+    def __init__(self, config, data, importance_toggle):
         self.data = data
         self.config = config
-
-    def importance_toggle(self,email_body,importance_value):
-        """Gives HTML text expect signature yellow background color"""
-        importance = 'nizka'
-        if importance_value == 2:
-            importance = 'stredni'
-            email_body = email_body.replace("<div>Dobrý den,",
-                                            "<div>Dobrý den,<br/>připomínám níže uvedené!"
-                                            ).replace(
-                "<span>",
-                '<span style="background-color:#ffff00;">'
-            )
-        elif importance_value == 3:
-            importance = 'vysoka'
-            email_body = email_body.replace("<div>Dobrý den,",
-                                            "<div>Dobrý den,<br/>připomínám níže uvedené!!!!!"
-                                            ).replace(
-                "<span>",
-                '<span style="background-color:#ffff00;">'
-            )
-        logger.debug(f"Email importance set: {importance_value} -> {importance}")
-        return email_body
+        self.importance_toggle = importance_toggle
 
     def email_body_constructor(self,email_row):
         """loads preview of email in specific row and returns it"""

@@ -28,3 +28,25 @@ def remove_diacritics(text):
     normalized = unicodedata.normalize('NFD', text)
     # Vrátí jen znaky, které nejsou "Mn" (Mark, Nonspacing = diakritika)
     return ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+
+def importance_toggle(email_body,importance_value):
+    """Gives HTML text expect signature yellow background color"""
+    importance = 'nizka'
+    if importance_value == 2:
+        importance = 'stredni'
+        email_body = email_body.replace("<div>Dobrý den,",
+                                        "<div>Dobrý den,<br/>připomínám níže uvedené!"
+                                        ).replace(
+            "<span>",
+            '<span style="background-color:#ffff00;">'
+        )
+    elif importance_value == 3:
+        importance = 'vysoka'
+        email_body = email_body.replace("<div>Dobrý den,",
+                                        "<div>Dobrý den,<br/>připomínám níže uvedené!!!!!"
+                                        ).replace(
+            "<span>",
+            '<span style="background-color:#ffff00;">'
+        )
+    logger.debug(f"Email importance set: {importance_value} -> {importance}")
+    return email_body

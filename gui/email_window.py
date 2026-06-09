@@ -9,7 +9,7 @@ from tkhtmlview import HTMLLabel
 class EmailTab(Frame):
     def __init__(self, notebook, root, excel_search, config,
                  df,selected_value_manager,html_converter,
-                 EmailSendManager, email_details, EmailConstructor):
+                 EmailSendManager, email_details, EmailConstructor, importance_toggle):
         super().__init__(notebook)
 
         # --- state ---
@@ -18,6 +18,7 @@ class EmailTab(Frame):
         self.config = config
         self.excel_search = excel_search       # callback pro live search
         self.df = df
+        self.importance_toggle = importance_toggle
         self.btn_send_email = None
         self.selected_value_manager = selected_value_manager
         self.html_converter = html_converter
@@ -27,6 +28,7 @@ class EmailTab(Frame):
         self.toolbox()
         self.default_row()
         self.email_details = email_details
+
 
 
 
@@ -42,7 +44,8 @@ class EmailTab(Frame):
                         self.remove_row,
                         self.EmailConstructor,
                         self.html_converter,
-                        self.root
+                        self.root,
+                        self.importance_toggle
                        )
         row.grid(row=len(self.rows) + 1, column=0, columnspan=6, sticky="w")
 
@@ -76,7 +79,8 @@ class EmailTab(Frame):
                 self.remove_row,
                 self.EmailConstructor,
                 self.html_converter,
-                self.root
+                self.root,
+                self.importance_toggle
             )
 
             self.rows.append(row)
@@ -130,7 +134,7 @@ class EmailTab(Frame):
                 for row in self.rows
                 if row.email and row.email.strip()
             ]
-            self.EmailConstructor(self.config,data)
+            self.EmailConstructor(self.config,data, self.importance_toggle)
             sender = self.EmailSendManager(self.config,data,self.email_details)
             sender.email_sender()
             self.reset_rows()
@@ -251,7 +255,7 @@ class EmailRow(Frame):
     - Tlačítko pro náhled / preview emailu
     """
 
-    def __init__(self, parent, config, remove_callback, EmailConstructor, html_converter,root):
+    def __init__(self, parent, config, remove_callback, EmailConstructor, html_converter,root, importance_toggle):
         super().__init__(parent)
 
         # --- internal state ---
@@ -267,6 +271,7 @@ class EmailRow(Frame):
         self.focus_dropdown_callback = parent.focus_dropdown
         self.EmailConstructor = EmailConstructor
         self.html_converter = html_converter
+        self.importance_toggle = importance_toggle
         self.data = EmailData(exp_time='',
                          exp_date='',
                          email='',
@@ -317,7 +322,7 @@ class EmailRow(Frame):
 
     def email_preview(self):
         """Debug preview (index řádku)"""
-        self.EmailConstructor(self.config,self.data).set_email_body()
+        self.EmailConstructor(self.config,self.data, self.importance_toggle).set_email_body()
         text = self.data.email_body
         converted_text = self.html_converter(text)
 

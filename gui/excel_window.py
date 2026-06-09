@@ -74,12 +74,13 @@ class ExcelTab(Frame):
             self.after(5000, excel_error_label.destroy)
 
     def sheet_button(self,number_of_sheets, sheet_list):
-        for n,_ in enumerate(number_of_sheets):
+        for n,_ in enumerate(range(number_of_sheets)):
             sheet_btn = Button(self,
                                text=n + 1,
-                               command=lambda: self.sheet_loader(sheet_list[n]))
-            sheet_btn.grid(column=n, row=0, sticky="nw", padx=5, pady=5)
+                               command=lambda sheet=sheet_list[n]: self.sheet_loader(sheet))
+            sheet_btn.grid(column=n, row=1, sticky="nw", padx=5, pady=5)
             self.sheet_bnt_list.append(sheet_btn)
+
     def sheet_loader(self, selected_sheet):
         self.load_excel_sheet(selected_sheet)
 

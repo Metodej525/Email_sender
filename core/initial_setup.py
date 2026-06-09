@@ -59,7 +59,7 @@ def setup_logger():
     timed_handler.setFormatter(PrettyJsonFormatter())
     logger.addHandler(timed_handler)
     #set logs level
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.debug("logger set")
     return logger
 

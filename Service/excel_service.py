@@ -9,7 +9,7 @@ class ExcelLoader:
     def __init__(self,config, excel_raw_load, selected_sheet):
         self.excel_raw_load = excel_raw_load
         self.config = config
-        self.filepath = config.get(c.EMAIL_SECTION,c.EXCEL_PATH)
+        self.filepath = config.get(c.EXCEL_SECTION,c.EXCEL_PATH)
         self.selected_sheet = selected_sheet
 
     def excel_load(self):
@@ -31,12 +31,14 @@ class SheetManager:
     def sheet_checker(self):
         excel_file = pd.ExcelFile(self.filepath)
         sheets = excel_file.sheet_names
+        logger.debug(f"checked sheets: {sheets}, total: {len(sheets)}")
         return sheets, len(sheets)
 
     def selected_sheet(self):
         if not self.selected_sheet:
             self.selected_sheet = 0
         sheets = self.sheet_checker()
+        logger.debug(f"selected sheet is: {self.selected_sheet}")
         return sheets[self.selected_sheet]
 
 def initial_filter(df):
