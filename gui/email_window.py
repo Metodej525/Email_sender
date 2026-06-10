@@ -153,7 +153,6 @@ class EmailTab(Frame):
             email_val = str(row.entry_email.get().lower())
             if len(email_val) >= 3:
                 self.live_search(email_val, row)
-
     def live_search(self, entry_val, row):
         """Vykreslí autocomplete dropdown"""
 
@@ -517,3 +516,4 @@ class EmailData:
     email_body: str
     email: str
     importance:int
+

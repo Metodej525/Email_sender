@@ -23,7 +23,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def setup_gui(config):
+def setup_gui(config,state):
     root = Tk()
     notebook = ttk.Notebook(root)
     notebook.pack(expand=True, fill='both')
@@ -34,7 +34,7 @@ def setup_gui(config):
     email_preview_tab = EmailPreviewTab(notebook, load_email_details, html_converter, config, importance_toggle)
     excel_tab = ExcelTab(notebook,safe_write_config, config, ExcelLoader, excel_raw_load, SheetManager, excel_path_load)
     email_tab = EmailTab(notebook, root, excel_search, config, excel_tab.df, selected_value_manager, html_converter,
-                         EmailSendManager,email_details, EmailConstructor, importance_toggle)
+                         EmailSendManager, email_details, EmailConstructor, importance_toggle)
 
     notebook.add(email_tab, text="Email")
     notebook.add(email_preview_tab, text='Náhled emialu')

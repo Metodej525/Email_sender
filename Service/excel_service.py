@@ -16,7 +16,7 @@ class ExcelLoader:
         filepath = self.config.get(c.EXCEL_SECTION,c.EXCEL_PATH)
         try:
             df = self.excel_raw_load(filepath,self.selected_sheet)
-            logger.info("loaded excel successfully")
+            logger.info(f"loaded excel successfully, with selected sheet: {self.selected_sheet}")
             return initial_filter(df)
         except Exception as e:
             logger.error(f"failed to load excel with exception: {e}")

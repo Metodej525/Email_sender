@@ -1,5 +1,5 @@
 v0.1
-- release
+- initial release
 v0.1.5
 - oprava navigaci v email dropdown menu pomocí šípek/enter pro potvrzení mailu
 - změna žluté barvy na sytější verzi
