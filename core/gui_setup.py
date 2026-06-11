@@ -32,9 +32,9 @@ def setup_gui(config,state):
 
     # signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
     email_preview_tab = EmailPreviewTab(notebook, load_email_details, html_converter, config, importance_toggle)
-    excel_tab = ExcelTab(notebook,safe_write_config, config, ExcelLoader, excel_raw_load, SheetManager, excel_path_load)
-    email_tab = EmailTab(notebook, root, excel_search, config, excel_tab.df, selected_value_manager, html_converter,
-                         EmailSendManager, email_details, EmailConstructor, importance_toggle)
+    excel_tab = ExcelTab(notebook,safe_write_config, config, ExcelLoader, excel_raw_load, SheetManager, excel_path_load,state)
+    email_tab = EmailTab(notebook, root, excel_search, config, selected_value_manager, html_converter,
+                         EmailSendManager, email_details, EmailConstructor, importance_toggle,state)
 
     notebook.add(email_tab, text="Email")
     notebook.add(email_preview_tab, text='Náhled emialu')

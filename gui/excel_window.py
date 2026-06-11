@@ -4,7 +4,7 @@ import constants as c
 
 
 class ExcelTab(Frame):
-    def __init__(self, notebook,safe_write_config, config, ExcelLoader, excel_raw_load, SheetManager,excel_path_load):
+    def __init__(self, notebook,safe_write_config, config, ExcelLoader, excel_raw_load, SheetManager,excel_path_load,app_state):
         # inicializace rodičovské třídy (Frame v Tkinteru)
         super().__init__(notebook)
 
@@ -13,7 +13,7 @@ class ExcelTab(Frame):
 
         self.SheetManager = SheetManager
         # dataframe s daty z excelu (zatím None)
-        self.df = None
+        self.app_state = app_state
 
         # funkce pro bezpečný zápis configu
         self.safe_write_config = safe_write_config
@@ -52,7 +52,7 @@ class ExcelTab(Frame):
     def initial_excel_load(self):
         try:
             sheet_list, number_of_sheets = self.SheetManager(self.config).sheet_checker()
-            self.df = self.ExcelLoader(self.config,self.excel_raw_load,sheet_list[0]).excel_load()
+            self.ExcelLoader(self.config,self.excel_raw_load,sheet_list[0],self.app_state).excel_load()
             self.sheet_button(number_of_sheets, sheet_list)
         except Exception as e:
             excel_error_label = Label(
@@ -64,7 +64,7 @@ class ExcelTab(Frame):
 
     def load_excel_sheet(self,sheet):
         try:
-            self.df = self.ExcelLoader(self.config,self.excel_raw_load,sheet).excel_load()
+            self.ExcelLoader(self.config,self.excel_raw_load,sheet,self.app_state).excel_load()
         except Exception as e:
             excel_error_label = Label(
                 self,
@@ -78,7 +78,7 @@ class ExcelTab(Frame):
             sheet_btn = Button(self,
                                text=n + 1,
                                command=lambda sheet=sheet_list[n]: self.sheet_loader(sheet))
-            sheet_btn.grid(column=n, row=1, sticky="nw", padx=5, pady=5)
+            sheet_btn.grid(column=0, row=n + 1, sticky="nw", padx=5, pady=5)
             self.sheet_bnt_list.append(sheet_btn)
 
     def sheet_loader(self, selected_sheet):

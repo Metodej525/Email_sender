@@ -8,8 +8,8 @@ from tkhtmlview import HTMLLabel
 
 class EmailTab(Frame):
     def __init__(self, notebook, root, excel_search, config,
-                 df,selected_value_manager,html_converter,
-                 EmailSendManager, email_details, EmailConstructor, importance_toggle):
+                 selected_value_manager,html_converter,
+                 EmailSendManager, email_details, EmailConstructor, importance_toggle, app_state):
         super().__init__(notebook)
 
         # --- state ---
@@ -17,7 +17,6 @@ class EmailTab(Frame):
         self.root = root                       # reference na root (kvůli Toplevel, bindům)
         self.config = config
         self.excel_search = excel_search       # callback pro live search
-        self.df = df
         self.importance_toggle = importance_toggle
         self.btn_send_email = None
         self.selected_value_manager = selected_value_manager
@@ -28,7 +27,7 @@ class EmailTab(Frame):
         self.toolbox()
         self.default_row()
         self.email_details = email_details
-
+        self.app_state = app_state
 
 
 
@@ -156,7 +155,7 @@ class EmailTab(Frame):
     def live_search(self, entry_val, row):
         """Vykreslí autocomplete dropdown"""
 
-        values = self.excel_search(entry_val, self.df)
+        values = self.excel_search(entry_val, self.app_state.get_df())
         # nic nenalezeno → zavři dropdown
         if not values:
             if self.dropdown:
