@@ -32,10 +32,6 @@ class EmailConstructor:
                 email_row.email_body = body
             logger.debug('email body constructed')
 
-        body = self.email_body_constructor(self.data)
-        body = self.importance_toggle(body, self.data.importance)
-
-        self.data.email_body = body
 
 class EmailSendManager:
     def __init__(self,config,email_data,email_details):

@@ -133,7 +133,7 @@ class EmailTab(Frame):
                 for row in self.rows
                 if row.email and row.email.strip()
             ]
-            self.EmailConstructor(self.config,data, self.importance_toggle)
+            self.EmailConstructor(self.config,data, self.importance_toggle).set_email_body()
             sender = self.EmailSendManager(self.config,data,self.email_details)
             sender.email_sender()
             self.reset_rows()
