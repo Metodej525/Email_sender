@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3a0767db-6ec8-41aa-9df5-2cdaef570575" name="Changes" comment="heeh">
-      <change afterPath="$PROJECT_DIR$/conftest.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/service_tests/email_preview_service_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/service_tests/email_service_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Email_sender.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Email_sender.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.txt" beforeDir="false" afterPath="$PROJECT_DIR$/README.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.ini" beforeDir="false" afterPath="$PROJECT_DIR$/config.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/service_tests/signature_service_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/service_tests/signature_service_test.py" afterDir="false" />
-    </list>
+    <list default="true" id="3a0767db-6ec8-41aa-9df5-2cdaef570575" name="Changes" comment="heeh" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
