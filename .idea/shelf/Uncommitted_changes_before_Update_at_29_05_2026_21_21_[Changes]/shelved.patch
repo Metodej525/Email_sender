@@ -1,0 +1,16 @@
+Index: Service/email_details.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import logging\r\nimport smtplib\r\nimport sys\r\nfrom email.mime.multipart import MIMEMultipart\r\nfrom email.mime.text import MIMEText\r\nfrom email.mime.image import MIMEImage\r\nfrom pathlib import Path\r\n\r\nimport constants as c\r\n\r\n\r\n\r\n# SMTP Configuration\r\ndef email_details(config,receiver, body):\r\n\r\n\r\n\r\n    SMTP_SERVER = config.get(c.EMAIL_SECTION,c.EMAIL_SMTP_SERVER)\r\n    SMTP_PORT = int(config.get(c.EMAIL_SECTION,c.EMAIL_SMTP_PORT))\r\n    USERNAME = ''\r\n    PASSWORD = ''\r\n    raw_body = body + '<img src=\"cid:logo_image\">'\r\n    #signature image manager\r\n\r\n\r\n    # Email Details\r\n    sender_email = config.get(c.EMAIL_SECTION,c.EMAIL_SENDER)\r\n    receiver_email = receiver\r\n    subject = config.get(c.EMAIL_SECTION,c.EMAIL_SUBJECT)\r\n    html_body = raw_body\r\n    cc_emails = [\r\n        email.strip()\r\n        for email in config.get(c.EMAIL_SECTION, c.EMAIL_CC).split(',')\r\n    ]\r\n    msg = MIMEMultipart('related')\r\n\r\n    # Create the email\r\n\r\n    msg[\"Subject\"] = subject\r\n    msg[\"From\"] = sender_email\r\n    msg[\"To\"] = receiver_email\r\n    msg[\"Cc\"] = config.get(c.EMAIL_SECTION,c.EMAIL_CC)\r\n\r\n    msg.attach(MIMEText(html_body, \"html\"))\r\n\r\n    # Attach image\r\n    if getattr(sys, 'frozen', False):\r\n        base_dir = Path(sys.executable).resolve().parent\r\n    else:\r\n        base_dir = c.BASE_DIR\r\n\r\n    img_path = base_dir / 'static' / 'img' / 'signature_email_logo.png'\r\n\r\n    with open(img_path, \"rb\") as f:\r\n        img = MIMEImage(f.read())\r\n\r\n    img.add_header('Content-ID', '<logo_image>')\r\n    img.add_header('Content-Disposition', 'inline')\r\n\r\n    msg.attach(img)\r\n\r\n    recipients = [receiver_email] + cc_emails\r\n\r\n    # Send the email\r\n    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:\r\n        server.sendmail(sender_email, recipients, msg.as_string())\r\n\r\n
+===================================================================
+diff --git a/Service/email_details.py b/Service/email_details.py
+--- a/Service/email_details.py	(revision fb58827397470b8deb36e1a4a79f00ceae756fef)
++++ b/Service/email_details.py	(date 1779656998841)
+@@ -63,5 +63,4 @@
+ 
+     # Send the email
+     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+-        server.sendmail(sender_email, recipients, msg.as_string())
+-
++        server.sendmail(sender_email, recipients, msg.as_string())
+\ No newline at end of file

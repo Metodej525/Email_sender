@@ -1,34 +1,47 @@
-EmailSender
-==============
-verze = 0.1.7
+# Email Sender
 
-Aplikace slouží pro posílání emailů o upozornění vypršení podepisovacího certifikátu.
-Email má přednastavený HTML template, kde se mění jen datumy ohledně vypršení cert.
+Desktopová aplikace pro odesílání upozorňovacích e-mailů o blížícím se vypršení podepisovacích certifikátů.
 
-Spusťte soubor:
+Aplikace načítá data z Excelu, umožňuje rychlé vyhledávání osob a automaticky generuje a odesílá HTML e-maily s nastavitelnou úrovní důležitosti.
+
+---
+
+## Funkce
+
+Načítání a filtrování dat z Excelu (certifikáty typu Q-TW-CZ)
+Live search s autocomplete (vyhledávání podle jména, příjmení nebo loginu)
+Dynamické generování HTML e-mailů
+Nastavitelná úroveň důležitosti e-mailu (nízká / střední / vysoká)
+Náhled e-mailu před odesláním
+Odesílání přes SMTP včetně inline obrázku (logo v podpisu)
+Konfigurace přes `config.ini` (není potřeba znovu kompilovat)
+Logging
+
+Technologie
+
+Python
+Tkinter – GUI
+Pandas + openpyxl – práce s Excel soubory
+smtplib + email.mime – odesílání HTML e-mailů
+configparser – konfigurace
+logging
+
+## Spuštění
+
+### Pro koncové uživatele (doporučeno)
+Stačí spustit:
+
+```bash
 main.exe
-eventuelně traceback_main.exe pro zobrazení error logu v cmd
 
-Není potřeba instalace.
-
-Struktura
-=========
-
-main.exe
-traceback_main.exe
-config.ini
-static/
-img/
-signature_email_logo.png
-
-Konfigurace
-===========
-
-Aplikace používá soubor config.ini.
-config.ini musí být v root složce jinak se aplikace nespustí
-
-Úpravy
-======
-
-- config.ini lze upravovat v libovolném textovém editoru
-- po úpravě není potřeba znovu kompilovat aplikaci
+## Sruktura projektu
+Email_sender/
+├── app.py                  # Vstupní bod aplikace
+├── config.ini              # Konfigurace
+├── constants.py
+├── core/                   # Inicializace, stav aplikace, utility
+├── gui/                    # Tkinter okna a komponenty
+├── Service/                # Business logika (e-mail, Excel, podpis)
+├── infra/                  # SMTP odesílání
+├── static/img/             # Logo pro podpis
+└── tests/
