@@ -3,3 +3,7 @@ dist/
 .spec
 .jsonl
 logs/
+.idea
+.venv
+.env
+config.ini

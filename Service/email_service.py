@@ -31,7 +31,8 @@ class EmailConstructor:
 
                 email_row.email_body = body
             logger.debug('email body constructed')
-
+        else:
+            logger.debug("no data to construct email body with")
 
 class EmailSendManager:
     def __init__(self,config,email_data,email_details):
