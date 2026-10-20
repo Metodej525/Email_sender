@@ -77,7 +77,8 @@ def excel_search(value,df):
                 slice_df = df[df['Jméno'].apply(remove_diacritics).str.lower().str.startswith(value,
                                                                                                  na=False)].drop_duplicates().head(
                     5)
-        return list(zip(slice_df['Příjmení'],
+        return list(zip(
+                        slice_df['Příjmení'],
                         slice_df['Jméno'],
                         slice_df['Login'],
                         slice_df['Typ cert.'],

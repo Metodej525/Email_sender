@@ -5,6 +5,7 @@ from core.utilities import remove_diacritics
 
 import logging
 
+#logger setup
 logger = logging.getLogger(__name__)
 
 class EmailConstructor:
@@ -40,24 +41,24 @@ class EmailSendManager:
         self.email_data =  email_data #EmailData instances wrapped in list
         self.email_details = email_details #INFRA email function
         self.valid_data = []
-
+        self.invalid_data = []
     def email_non_state_checker(self):
-        """checks and deletes None values from dict"""
+        """Separates email records based on whether an email address is present."""
         logger.debug('checked for none state in email dict')
-        invalid_data = []
+        self.invalid_data = []
         for email_row in self.email_data:
             if email_row.email is None or email_row.email == '':
-                invalid_data.append(email_row)
+                self.invalid_data.append(email_row)
             else:
                 self.valid_data.append(email_row)
         logger.debug(f"valid data: {self.valid_data}")
         logger.debug('loaded email data non status checked')
-
+        logger.debug("Invalid email data count: %s", len(self.invalid_data))
     def email_sender(self):
         self.email_non_state_checker()
         for email_row in self.valid_data:
             self.email_details(self.config, email_row.email, email_row.email_body)
-            logger.info(f"send email to: {email_row.email}")
+            logger.info(f"email sent to address: {email_row.email}")
 
 def selected_value_manager(value):
     """loads on_select values and props them + makes email str"""
