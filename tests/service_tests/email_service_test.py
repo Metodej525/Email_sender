@@ -38,7 +38,7 @@ def multiple_email_data():
                  ))
 
 @pytest.fixture
-def email_constructor__instance(setup_config,
+def email_constructor_instance(setup_config,
                       multiple_email_data,
                       mock_importance_toggle):
     return EmailConstructor(setup_config,
@@ -131,4 +131,4 @@ def test_selected_value_manager(value,
     assert selected_value_manager(value) == expected
 
 def test_previous_workday():
-    ...
+    assert previous_workday("21.10.2026") == "20.10.2026"
