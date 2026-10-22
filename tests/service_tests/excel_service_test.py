@@ -100,5 +100,29 @@ def test_initial_filter(create_test_excel):
         expected_df,
     )
 
-def test_excel_search():
-    ...
+def test_excel_search(create_test_excel):
+    assert excel_search('pafr',create_test_excel[0]) == [('Paleta',
+                                                          'Franta',
+                                                          'pafr',
+                                                          'Q-TW-CZ',
+                                                          '02.01.2026 08:14:00')]
+
+def test_excel_path_load(setup_config,mocker):
+    setup_config.clear()
+    path = "some path"
+    safe_write_config_mock = mocker.Mock()
+
+    with pytest.raises(ValueError,match="Chybí sekce EXCEL"):
+        excel_path_load(setup_config,path,safe_write_config_mock)
+
+    setup_config.add_section(c.EXCEL_SECTION)
+    setup_config.set(c.EXCEL_SECTION, c.EXCEL_PATH, path)
+
+    excel_path_load(setup_config,path,safe_write_config_mock)
+    safe_write_config_mock.assert_not_called()
+
+    excel_path_load(setup_config, "not some path", safe_write_config_mock)
+    assert setup_config.get(c.EXCEL_SECTION, c.EXCEL_PATH) == "not some path"
+    safe_write_config_mock.assert_called_once_with(
+        setup_config, c.CONFIG_PATH
+    )
