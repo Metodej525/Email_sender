@@ -34,12 +34,12 @@ class SheetManager:
         logger.debug(f"checked sheets: {sheets}, total: {len(sheets)}")
         return sheets, len(sheets)
 
-    def selected_sheet(self):
-        if not self.selected_sheet:
-            self.selected_sheet = 0
-        sheets = self.sheet_checker()
-        logger.debug(f"selected sheet is: {self.selected_sheet}")
-        return sheets[self.selected_sheet]
+    # def selected_sheet_index(self):
+    #     if not self.selected_sheet:
+    #         self.selected_sheet = 0
+    #     sheets, _ = self.sheet_checker()
+    #     logger.debug(f"selected sheet is: {self.selected_sheet}")
+    #     return sheets[self.selected_sheet]
 
 def initial_filter(df):
     """vyfiltruje jen certifikáty typu Q-TW-CZ + všechny kromě ukončených v pp"""
@@ -70,11 +70,11 @@ def excel_search(value,df):
     if df is not None:
         slice_df = df[df['Login'].apply(remove_diacritics).str.lower().str.startswith(value, na=False)].drop_duplicates().head(5)
         if slice_df.empty:
-            slice_df = df[df['Příjmení'].apply(remove_diacritics).str.lower().str.startswith(value,
+            slice_df = df[df['Příjmení'].apply(remove_diacritics).str.lower().str.startswith(remove_diacritics(value),
                                                                                              na=False)].drop_duplicates().head(
                 5)
             if slice_df.empty:
-                slice_df = df[df['Jméno'].apply(remove_diacritics).str.lower().str.startswith(value,
+                slice_df = df[df['Jméno'].apply(remove_diacritics).str.lower().str.startswith(remove_diacritics(value),
                                                                                                  na=False)].drop_duplicates().head(
                     5)
         return list(zip(
