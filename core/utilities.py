@@ -5,29 +5,55 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-#atomicky zapis config.ini
 def safe_write_config(config, path):
-    dir_name = os.path.dirname(path) or "."
+    """Write a configuration file atomically.
 
-    with tempfile.NamedTemporaryFile(
+    The configuration is first written to a temporary file in the
+    destination directory. Once writing succeeds, the temporary file
+    replaces the destination file atomically.
+
+    Args:
+        config: A configuration object supporting the ``write()`` method.
+        path: Path to the destination configuration file.
+    """
+    dir_name = os.path.dirname(path) or "."
+    temp_name = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
             mode="w",
             encoding="UTF-8",
             delete=False,
-            dir=dir_name
-    ) as tmp:
-        config.write(tmp)#zapise se config do temp file
-        temp_name = tmp.name #string s cestou k docasnemu souboru
+            dir=dir_name,
+        ) as tmp:
+            config.write(tmp)
+            temp_name = tmp.name
 
-    os.replace(temp_name, path)#smaze se puvodni config a nahradi temp file + prejmenuje
-    logger.debug(f"safely wrote into config: {path}")
+        # Replace the destination only after the temporary file is closed.
+        os.replace(temp_name, path)
+        logger.debug("Safely wrote configuration to: %s", path)
+
+    finally:
+        # Remove the temporary file if writing or replacement failed.
+        if temp_name is not None and os.path.exists(temp_name):
+            os.unlink(temp_name)
 
 def remove_diacritics(text):
+    """Remove diacritical marks from a string.
+
+    Return the input unchanged if it is not a string.
+    """
     if not isinstance(text, str):
         return text
-    # Normalizace na NFD (rozdělí znaky + diakritiku)
-    normalized = unicodedata.normalize('NFD', text)
-    # Vrátí jen znaky, které nejsou "Mn" (Mark, Nonspacing = diakritika)
-    return ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+
+    # Decompose characters into their base characters and combining marks.
+    normalized = unicodedata.normalize("NFD", text)
+
+    # Remove all nonspacing marks (category "Mn"), including diacritical marks.
+    return "".join(
+        c for c in normalized
+        if unicodedata.category(c) != "Mn"
+    )
 
 def importance_toggle(email_body,importance_value):
     """Gives HTML text expect signature yellow background color"""
