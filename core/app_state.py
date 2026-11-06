@@ -1,4 +1,5 @@
 class AppState:
+    #nastavení instance dataframu sdílené napříč appkou
     def __init__(self):
         self.df = None
 

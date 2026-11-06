@@ -16,7 +16,7 @@ HOSTNAME = socket.gethostname()
 logger = logging.getLogger(__name__)
 
 class PrettyJsonFormatter(logging.Formatter):
-    """nastaven formátu logů
+    """nastavení formátu logů
     pro level Debug a pro zbytek
     """
 

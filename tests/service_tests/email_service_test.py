@@ -4,19 +4,23 @@ import configparser
 from gui.email_window import EmailData
 from Service.email_service import EmailConstructor, EmailSendManager, selected_value_manager, previous_workday
 
-
+# Fixture připravující základní testovací konfiguraci
 @pytest.fixture
 def setup_config():
     config = configparser.ConfigParser()
     config.add_section(c.EMAIL_SECTION)
     return config
 
+# Fixture vytvářející mock funkce pro změnu důležitosti e-mailu
 @pytest.fixture
 def mock_importance_toggle(mocker):
     mock = mocker.Mock()
     mock.return_value = "xx"
     return mock
 
+
+# Fixture obsahující několik testovacích e-mailových záznamů
+# Zahrnuje dva platné záznamy a jeden záznam bez e-mailové adresy
 @pytest.fixture
 def multiple_email_data():
     return list((
@@ -37,6 +41,9 @@ def multiple_email_data():
                     importance=3)
                  ))
 
+
+# Fixture vytvářející instanci třídy EmailConstructor
+# s testovací konfigurací, daty a mock funkcí
 @pytest.fixture
 def email_constructor_instance(setup_config,
                       multiple_email_data,
@@ -46,7 +53,9 @@ def email_constructor_instance(setup_config,
                             mock_importance_toggle)
 class TestEmailConstructor:
 
+    # Test ověřující nastavení těla všech e-mailů
     def test_set_email_body(self,email_constructor_instance, mocker):
+        # Nahrazení metody pro sestavení těla e-mailu mock objektem
         mock = mocker.patch.object(
             email_constructor_instance,
             "email_body_constructor",
@@ -55,33 +64,46 @@ class TestEmailConstructor:
 
         email_constructor_instance.set_email_body()
 
+        # Ověření, že metoda byla zavolána pro všechny tři záznamy
         assert mock.call_count == 3
+
+        # Ověření, že všechny e-mailové záznamy obsahují výsledek mock funkce
         assert all(
             row.email_body == "xx"
             for row in email_constructor_instance.data
         )
 
+    # Test ověřující správné sestavení těla e-mailu
     def test_email_body_constructor(self,email_constructor_instance,
                                     setup_config,
                                     monkeypatch):
+        # Nastavení testovacích částí těla e-mailu a podpisu
         setup_config.set(c.EMAIL_SECTION,c.EMAIL_BODY_1,'a')
         setup_config.set(c.EMAIL_SECTION, c.EMAIL_BODY_2, 'b')
         setup_config.set(c.EMAIL_SECTION, c.EMAIL_BODY_3, 'c')
         setup_config.set(c.EMAIL_SECTION, c.EMAIL_SIGN, 'x')
 
+        # Nahrazení funkce pro získání předchozího pracovního dne
+        # předem definovanou návratovou hodnotou
         monkeypatch.setattr("Service.email_service.previous_workday",
                             lambda previous_workday: '3')
+
+        # Ověření správného sestavení výsledného textu e-mailu
         assert email_constructor_instance.email_body_constructor(
             EmailData(exp_date='1',
                         exp_time='2',
                         email_body='',
                         email='test1@test.com',
                         importance=1)) == "a 1 2 b 3 c x"
+
+# Fixture vytvářející mock funkce pro zpracování a odesílání e-mailů
 @pytest.fixture
 def mock_email_details(mocker):
     mock = mocker.Mock()
     return mock
 
+# Fixture vytvářející instanci třídy EmailSendManager
+# s testovací konfigurací, e-mailovými daty a mock funkcí
 @pytest.fixture
 def email_send_manager_instance(setup_config,
                        multiple_email_data,
@@ -90,13 +112,18 @@ def email_send_manager_instance(setup_config,
 
 class TestEmailSenderManager:
 
+    # Test ověřující rozdělení e-mailových záznamů na platné a neplatné
     def test_email_non_state_checker(self,email_send_manager_instance):
+
         email_send_manager_instance.email_non_state_checker()
+        # Ověření, že záznam bez e-mailové adresy byl označen jako neplatný
         assert email_send_manager_instance.invalid_data == [EmailData(exp_date='',
                     exp_time='',
                     email_body='a',
                     email='',
                     importance=3)]
+
+        # Ověření, že záznamy s e-mailovou adresou byly označeny jako platné
         assert email_send_manager_instance.valid_data == [EmailData(exp_date='',
                     exp_time='',
                     email_body='y',
@@ -108,17 +135,23 @@ class TestEmailSenderManager:
                     email='test2@test.com',
                     importance=2)]
 
+    # Test ověřující odeslání všech platných e-mailů
     def test_email_sender(self,email_send_manager_instance
                           ,mock_email_details,
                           setup_config):
         email_send_manager_instance.email_sender()
+        # Ověření, že funkce pro zpracování e-mailů byla zavolána dvakrát
         assert mock_email_details.call_count == 2
 
+# Testovací hodnoty pro ověření zpracování vybraného záznamu
+# Obsahují jméno, příjmení, další údaje a datum s časem
 values = [("Novák, Tomáš, novt, Q-TW-CZ, 18.06.2026 15:22:00",
            "tomas.novak@ikem.cz","18.06.2026","15:22:00"),
           ("Paleta, Luboš, pall, Q-TW-CZ, 20.08.2030 18:05:00",
            "lubos.paleta@ikem.cz", "20.08.2030", "18:05:00")
           ]
+
+# Parametrizovaný test ověřující získání e-mailu, data a času z vybraného záznamu
 @pytest.mark.parametrize("value,email,exp_date,exp_time",values)
 def test_selected_value_manager(value,
                                 email,
@@ -130,5 +163,6 @@ def test_selected_value_manager(value,
 
     assert selected_value_manager(value) == expected
 
+# Test ověřující správné určení předchozího pracovního dne
 def test_previous_workday():
     assert previous_workday("21.10.2026") == "20.10.2026"

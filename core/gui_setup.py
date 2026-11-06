@@ -24,6 +24,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def setup_gui(config,state):
+    """sets up GUI for tkinter"""
     root = Tk()
     notebook = ttk.Notebook(root)
     notebook.pack(expand=True, fill='both')
@@ -41,6 +42,7 @@ def setup_gui(config,state):
     # notebook.add(signature_tab, text="Signature")
     notebook.add(excel_tab, text="Excel")
 
+    #tab list and their sizes
     TAB_FIELDS = {
         email_tab: '700x350',
         email_preview_tab: '1200x600',

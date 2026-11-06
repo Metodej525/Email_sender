@@ -1,6 +1,7 @@
 from tkinter import Button, Entry, Label, Frame, messagebox
 
 class SignatureTab(Frame):
+    #Píprava pro frame s možným nastavením podpisu, momentálně se nepoužívá
     FIELDS = [
         ("name", "Jméno a přijmení:"),
         ("telephone", "Tel. číslo:"),

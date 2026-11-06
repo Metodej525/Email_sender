@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def load_email_details(config):
-    """loads all email props and returns them as dict"""
+    """načte data pro email a vrátí jě jako dict"""
     smtp_server = config.get(c.EMAIL_SECTION, c.EMAIL_SMTP_SERVER, fallback='')
     smtp_port = config.get(c.EMAIL_SECTION, c.EMAIL_SMTP_PORT, fallback='')
     username = config.get(c.EMAIL_SECTION, c.EMAIL_USERNAME, fallback='')

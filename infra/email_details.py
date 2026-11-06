@@ -22,7 +22,7 @@ def email_details(config,receiver, body):
     #signature image manager
 
 
-    # Email Details
+    # Detaily emailu
     sender_email = config.get(c.EMAIL_SECTION,c.EMAIL_SENDER)
     receiver_email = receiver
     subject = config.get(c.EMAIL_SECTION,c.EMAIL_SUBJECT)
@@ -33,7 +33,7 @@ def email_details(config,receiver, body):
     ]
     msg = MIMEMultipart('related')
 
-    # Create the email
+    # Vytvoření emailu
 
     msg["Subject"] = subject
     msg["From"] = sender_email
@@ -42,7 +42,7 @@ def email_details(config,receiver, body):
 
     msg.attach(MIMEText(html_body, "html"))
 
-    # Attach image
+    # Přiložení obrázku
     if getattr(sys, 'frozen', False):
         base_dir = Path(sys.executable).resolve().parent
     else:
@@ -60,7 +60,7 @@ def email_details(config,receiver, body):
 
     recipients = [receiver_email] + cc_emails
 
-    # Send the email
+    # Pošli email
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.sendmail(sender_email, recipients, msg.as_string())
 

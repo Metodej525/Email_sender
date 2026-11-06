@@ -44,4 +44,4 @@ Email_sender/
 ├── Service/                # Business logika (e-mail, Excel, podpis)
 ├── infra/                  # SMTP odesílání
 ├── static/img/             # Logo pro podpis
-└── tests/
+└── tests/                  # Pytesty
