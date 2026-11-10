@@ -44,6 +44,7 @@ def setup_logger():
     logger = logging.getLogger()
     if logger.handlers:
         return logger
+
     #check pro složku root/logs , pokud ne vytvoří ji
     Path(c.LOG_PATH).parent.mkdir(parents=True, exist_ok=True)
 
@@ -52,12 +53,16 @@ def setup_logger():
     # - uchovává max 10 rotovaných souborů
     # - starší soubory smaže
     # - suffix určuje formát data v názvu rotovaných souborů
-    timed_handler = ConcurrentTimedRotatingFileHandler(filename=c.LOG_PATH,when='midnight',backupCount=10,encoding='utf-8')
+    timed_handler = ConcurrentTimedRotatingFileHandler(filename=c.LOG_PATH,
+                                                       when='midnight',
+                                                       backupCount=10,
+                                                       encoding='utf-8')
     timed_handler.suffix = "%Y%m%d"
 
     #set handlerů
     timed_handler.setFormatter(PrettyJsonFormatter())
     logger.addHandler(timed_handler)
+
     #set logs level
     logger.setLevel(logging.INFO)
     logger.debug("logger set")
@@ -74,6 +79,7 @@ def setup_config():
     config = configparser.ConfigParser()
     if not CONFIG_PATH.exists():
         logger.error("Config file not found")
+        return config
     try:
         config.read(filenames=CONFIG_PATH, encoding=c.CONFIG_ENCODING)
         logger.info(f"Config loaded with {CONFIG_PATH}")
