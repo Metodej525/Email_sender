@@ -16,12 +16,14 @@ HOSTNAME = socket.gethostname()
 logger = logging.getLogger(__name__)
 
 class PrettyJsonFormatter(logging.Formatter):
-    """nastavení formátu logů
-    pro level Debug a pro zbytek
+    """
+    Formátuje logovací záznamy do strukturovaného JSON formátu.
+    Pro záznamy úrovně DEBUG doplňuje diagnostická metadata.
     """
 
     def format(self, record):
-
+        # Připravuje základní strukturu logovacího záznamu
+        # obsahující čas, název hostitele, úroveň a samotnou zprávu.
         data = {
             "time": self.formatTime(record, "%Y-%m-%d %H:%M:%S"),
             "hostname": HOSTNAME,
@@ -29,7 +31,8 @@ class PrettyJsonFormatter(logging.Formatter):
             "message": record.getMessage(),
         }
 
-        # DEBUG a vyšší → přidej debug metadata
+        # U DEBUG záznamů doplňuje informace o původu logovací zprávy,
+        # které usnadňují diagnostiku a vyhledávání chyb.
         if record.levelno == logging.DEBUG:
             data.update({
                 "logger": record.name,
@@ -37,15 +40,15 @@ class PrettyJsonFormatter(logging.Formatter):
                 "line": record.lineno,
                 "function": record.funcName,
             })
-
+        # Serializuje připravená data do JSON řetězce.
         return json.dumps(data)
 def setup_logger():
-    #check jestli logger existuje
+    # Ověřuje jestli logger existuje
     logger = logging.getLogger()
     if logger.handlers:
         return logger
 
-    #check pro složku root/logs , pokud ne vytvoří ji
+    # Ověřuje pro složku root/logs , pokud ne vytvoří ji
     Path(c.LOG_PATH).parent.mkdir(parents=True, exist_ok=True)
 
     # TimedRotatingFileHandler:
@@ -59,30 +62,47 @@ def setup_logger():
                                                        encoding='utf-8')
     timed_handler.suffix = "%Y%m%d"
 
-    #set handlerů
+    # Nastavení logger handlerů
     timed_handler.setFormatter(PrettyJsonFormatter())
     logger.addHandler(timed_handler)
 
-    #set logs level
+    # Nastavení logs level
     logger.setLevel(logging.INFO)
     logger.debug("logger set")
     return logger
 
 def setup_config():
+    # Určuje základní adresář aplikace podle způsobu jejího spuštění.
+    # Při spuštění jako samostatný executable se použije umístění
+    # spustitelného souboru, jinak se využije výchozí adresář projektu.
     if getattr(sys, 'frozen', False):
         BASE_DIR = Path(os.path.dirname(sys.executable))
     else:
         BASE_DIR = c.BASE_DIR
 
+    # Sestavuje absolutní cestu ke konfiguračnímu souboru
+    # na základě základního adresáře aplikace.
     CONFIG_PATH = BASE_DIR / c.CONFIG_PATH
 
+    # Inicializuje parser pro načítání INI konfigurace.
     config = configparser.ConfigParser()
+
+    # Ověřuje existenci konfiguračního souboru.
+    # Pokud soubor není dostupný, zaznamená chybu a vrátí
+    # prázdnou konfiguraci.
     if not CONFIG_PATH.exists():
         logger.error("Config file not found")
         return config
+
     try:
+        # Načítá konfiguraci s nastaveným kódováním.
         config.read(filenames=CONFIG_PATH, encoding=c.CONFIG_ENCODING)
+
+        # Zaznamenává úspěšné načtení konfiguračního souboru.
         logger.info(f"Config loaded with {CONFIG_PATH}")
+
+    # Zachycuje chyby vzniklé při parsování INI souboru.
     except configparser.ParsingError as e:
         logger.error(f"Config failed parsing with exception: {e}")
+
     return config
