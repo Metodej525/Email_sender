@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 
 import constants as c
-
 import socket
 
 HOSTNAME = socket.gethostname()
@@ -21,9 +20,8 @@ class PrettyJsonFormatter(logging.Formatter):
     Pro záznamy úrovně DEBUG doplňuje diagnostická metadata.
     """
 
-    def format(self, record):
-        # Připravuje základní strukturu logovacího záznamu
-        # obsahující čas, název hostitele, úroveň a samotnou zprávu.
+    def format(self, record: logging.LogRecord) -> str:
+        # Základní struktura logovacího záznamu
         data = {
             "time": self.formatTime(record, "%Y-%m-%d %H:%M:%S"),
             "hostname": HOSTNAME,
@@ -42,7 +40,7 @@ class PrettyJsonFormatter(logging.Formatter):
             })
         # Serializuje připravená data do JSON řetězce.
         return json.dumps(data)
-def setup_logger():
+def setup_logger() -> logging.Logger:
     # Ověřuje jestli logger existuje
     logger = logging.getLogger()
     if logger.handlers:

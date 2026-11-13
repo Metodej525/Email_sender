@@ -1,6 +1,11 @@
+from collections.abc import Callable
 import constants as c
+import configparser
 
-def save_signature(config, data, write_config):
+def save_signature(config: configparser.ConfigParser,
+                   data: dict[str,str],
+                   write_config: Callable[[configparser.ConfigParser,str],None]
+                   ) -> None:
     # Kontrola, zda v konfiguraci existuje sekce pro podpis.
     # Pokud chybí, vyvolá se výjimka ValueError.
     if c.SIGNATURE_SECTION not in config:
@@ -16,7 +21,7 @@ def save_signature(config, data, write_config):
     write_config(config, c.CONFIG_PATH)
 
 
-def load_signature_data(config):
+def load_signature_data(config: configparser.ConfigParser) -> dict[str,str]:
     # Načtení jednotlivých údajů podpisu z konfigurace.
     # Pokud některá položka neexistuje, použije se prázdný řetězec.
     name = config.get(c.SIGNATURE_SECTION, c.SIGNATURE_NAME, fallback='')

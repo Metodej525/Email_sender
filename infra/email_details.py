@@ -1,3 +1,4 @@
+import configparser
 import smtplib
 import sys
 from email.mime.multipart import MIMEMultipart
@@ -10,9 +11,10 @@ import constants as c
 
 
 # SMTP Configuration
-def email_details(config,receiver, body):
-
-
+def email_details(config: configparser.ConfigParser,
+                  receiver: str,
+                  body: str
+                  ) -> None:
 
     SMTP_SERVER = config.get(c.EMAIL_SECTION,c.EMAIL_SMTP_SERVER)
     SMTP_PORT = int(config.get(c.EMAIL_SECTION,c.EMAIL_SMTP_PORT))
@@ -60,7 +62,7 @@ def email_details(config,receiver, body):
 
     recipients = [receiver_email] + cc_emails
 
-    # Pošli email
+    # Odeslání emailu
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.sendmail(sender_email, recipients, msg.as_string())
 

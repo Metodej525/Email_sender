@@ -25,6 +25,7 @@ Pandas + openpyxl – práce s Excel soubory
 smtplib + email.mime – odesílání HTML e-mailů
 configparser – konfigurace
 logging
+pytest
 
 ## Spuštění
 

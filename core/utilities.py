@@ -1,11 +1,16 @@
+import configparser
 import os
 import tempfile
+from pathlib import Path
+
 import unicodedata
 import logging
 
 logger = logging.getLogger(__name__)
 
-def safe_write_config(config, path):
+def safe_write_config(config: configparser.ConfigParser,
+                      path: str
+                      ) -> None:
     """Write a configuration file atomically.
 
     The configuration is first written to a temporary file in the
@@ -38,7 +43,7 @@ def safe_write_config(config, path):
         if temp_name is not None and os.path.exists(temp_name):
             os.unlink(temp_name)
 
-def remove_diacritics(text):
+def remove_diacritics(text: str) -> str:
     """Remove diacritical marks from a string.
 
     Return the input unchanged if it is not a string.
@@ -55,7 +60,9 @@ def remove_diacritics(text):
         if unicodedata.category(c) != "Mn"
     )
 
-def importance_toggle(email_body,importance_value):
+def importance_toggle(email_body: str,
+                      importance_value: int
+                      ) -> str:
     """Gives HTML text expect signature yellow background color"""
     importance = 'nizka'
     if importance_value == 2:

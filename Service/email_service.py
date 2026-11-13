@@ -1,21 +1,27 @@
-from datetime import timedelta, datetime
 import constants as c
-from core.utilities import remove_diacritics
-
-
 import logging
+import configparser
 
+from datetime import timedelta, datetime
+from collections.abc import Callable
+
+from core.utilities import remove_diacritics
+from core.protocols import EmailDataProtocol
 #logger setup
 logger = logging.getLogger(__name__)
 
 class EmailConstructor:
-    def __init__(self, config, data, importance_toggle):
+    def __init__(self, config: configparser.ConfigParser,
+                 data: list[EmailDataProtocol] | None,
+                 importance_toggle: Callable[[str,int],str]
+                 ) -> None:
         # Nastavení loggeru pro zaznamenávání událostí a chyb v tomto modulu.
+
         self.data = data
         self.config = config
         self.importance_toggle = importance_toggle
 
-    def email_body_constructor(self,email_row):
+    def email_body_constructor(self,email_row:EmailDataProtocol) -> str:
         """Načte části textu e-mailu z konfigurace a sestaví výsledné tělo e-mailu."""
         # Načtení jednotlivých částí textu e-mailu; fallback zajistí prázdný řetězec,
         # pokud příslušná položka v konfiguraci chybí.
@@ -31,7 +37,7 @@ class EmailConstructor:
         email_body = f'{body1} {email_row.exp_date} {email_row.exp_time} {body2} {minus_exp_date} {body3} {sign}'
         return email_body
 
-    def set_email_body(self):
+    def set_email_body(self) -> None:
         # Tělo e-mailu se vytváří pouze tehdy, pokud jsou vstupní data ve formě seznamu.
         if isinstance(self.data,list):
             for email_row in self.data:
@@ -48,13 +54,17 @@ class EmailConstructor:
             logger.debug("no data to construct email body with")
 
 class EmailSendManager:
-    def __init__(self,config,email_data,email_details):
+    def __init__(self,config: configparser.ConfigParser,
+                 email_data: list[EmailDataProtocol],
+                 email_details: Callable[[configparser.ConfigParser,str,str],None],
+                 ) -> None:
         self.config = config
         self.email_data =  email_data # Instance EmailData uložené v seznamu.
         self.email_details = email_details # Funkce zajišťující odeslání e-mailu.
         self.valid_data = []
         self.invalid_data = []
-    def email_non_state_checker(self):
+
+    def email_non_state_checker(self) -> None:
         """Rozdělí záznamy podle toho, zda obsahují e-mailovou adresu."""
         logger.debug('checked for none state in email dict')
 
@@ -71,7 +81,7 @@ class EmailSendManager:
         logger.debug('loaded email data non status checked')
         logger.debug("Invalid email data count: %s", len(self.invalid_data))
 
-    def email_sender(self):
+    def email_sender(self) -> None:
         # Nejprve rozdělí záznamy na platné a neplatné podle e-mailové adresy.
         self.email_non_state_checker()
 
@@ -80,7 +90,7 @@ class EmailSendManager:
             self.email_details(self.config, email_row.email, email_row.email_body)
             logger.info(f"email sent to address: {email_row.email}")
 
-def selected_value_manager(value):
+def selected_value_manager(value: str) -> tuple[str, str, str]:
     """Zpracuje vybranou hodnotu a připraví údaje potřebné pro vytvoření e-mailové adresy."""
     # Rozdělení vstupního řetězce na jednotlivé údaje a odstranění okolních mezer.
     raw_surname, raw_firstname, login, cert_type, exp = [x.strip() for x in value.split(',')]
@@ -100,7 +110,7 @@ def selected_value_manager(value):
     logger.debug(f'email set as: {email}, exp_date as: {exp_date}, exp_time as: {exp_time}')
     return email, exp_date, exp_time
 
-def previous_workday(exp_date: str):
+def previous_workday(exp_date: str) -> str:
     """Vypočítá předchozí pracovní den vzhledem k zadanému datu."""
     # Převod data z textového formátu na objekt datetime.
     t = datetime.strptime(exp_date, "%d.%m.%Y")

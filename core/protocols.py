@@ -8,3 +8,10 @@ class AppStateProtocol(Protocol):
 
     def get_df(self) -> pd.DataFrame | None:
         ...
+
+class EmailDataProtocol(Protocol):
+    exp_date: str
+    exp_time: str
+    email_body: str
+    email: str
+    importance: int

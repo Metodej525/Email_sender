@@ -1,7 +1,9 @@
-from tkinter import Label, Frame, Button
+from collections.abc import Callable
+from typing import Any
+from tkinter import Label, Frame, ttk
 from tkhtmlview import HTMLLabel
 import tkinter as tk
-
+import configparser
 
 
 class EmailPreviewTab(Frame):
@@ -17,7 +19,11 @@ class EmailPreviewTab(Frame):
               'preview':('Náhled: ','')
               }
 
-    def __init__(self,notebook,load_email_details,html_converter,config, importance_toggle):
+    def __init__(self,notebook: ttk.Notebook,
+                 load_email_details: Callable[[configparser.ConfigParser],dict[str,str]],
+                 html_converter: Callable[[str],str],
+                 config: configparser.ConfigParser,
+                 importance_toggle) -> None:
         # Inicializace základního Tkinter Frame widgetu.
         super().__init__(notebook)
 
@@ -47,7 +53,7 @@ class EmailPreviewTab(Frame):
 
 
 
-    def switch_template(self,state):
+    def switch_template(self,state: int) -> None:
         # Úprava HTML šablony podle aktuálního stavu důležitosti.
         email_template = self.importance_toggle(self.raw_html,state)
 
@@ -66,7 +72,10 @@ class SkullPreviewToggle(tk.Button):
         - zapnutý stav = žluté pozadí
         """
 
-    def __init__(self, master, switch_template, **kwargs):
+    def __init__(self, master: tk.Misc,
+                 switch_template: Callable[[int],None],
+                 **kwargs: Any
+                 ) -> None:
         # inicializace základního Tkinter Button widgetu
         super().__init__(master, text="💀", width=4, **kwargs)
 
@@ -79,7 +88,7 @@ class SkullPreviewToggle(tk.Button):
         self.master = master
         self.switch_template = switch_template
 
-    def cycle(self):
+    def cycle(self) -> None:
         # Přepínání mezi třemi stavy; po třetím stavu se vrací zpět na první.
         if self.state >= 3:
             self.state = 1
@@ -92,7 +101,7 @@ class SkullPreviewToggle(tk.Button):
         # Aktualizace vzhledu tlačítka podle aktuálního stavu.
         self.update_style()
 
-    def update_style(self):
+    def update_style(self) -> None:
         """Nastaví vizuální styl tlačítka podle aktuálního stavu."""
 
         # První stav – šedé pozadí a běžný vzhled tlačítka.

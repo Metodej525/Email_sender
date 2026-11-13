@@ -1,17 +1,26 @@
-from tkinter import Button, Label, Frame, Entry
+import pandas as pd
 import constants as c
+import configparser
 
+from pathlib import Path
+from collections.abc import Callable
+
+from tkinter import Button, Label, Frame, Entry, ttk
+
+from core.protocols import AppStateProtocol
 
 
 class ExcelTab(Frame):
-    def __init__(self, notebook,
-                 safe_write_config,
-                 config,
+    def __init__(self, notebook: ttk.Notebook,
+                 safe_write_config: Callable[[configparser.ConfigParser,str],None],
+                 config: configparser.ConfigParser,
                  ExcelLoader,
-                 excel_raw_load,
+                 excel_raw_load: Callable[[str | Path,str],pd.DataFrame],
                  SheetManager,
-                 excel_path_load,
-                 app_state):
+                 excel_path_load: Callable[[configparser.ConfigParser,str,
+                                            Callable[[configparser.ConfigParser, str], None]
+                                            ],None],
+                 app_state: AppStateProtocol):
         # inicializace rodičovské třídy
         super().__init__(notebook)
 
@@ -56,7 +65,7 @@ class ExcelTab(Frame):
 
         self.initial_excel_load()
 
-    def initial_excel_load(self):
+    def initial_excel_load(self) -> None:
         try:
 
             # Získání dostupných listů a jejich počtu
@@ -75,7 +84,9 @@ class ExcelTab(Frame):
             excel_error_label.grid(column=1, row=2, sticky="nw", padx=5, pady=5)
             self.after(5000, excel_error_label.destroy)
 
-    def load_excel_sheet(self,sheet):
+    def load_excel_sheet(self,
+                         sheet: str,
+                         ) -> None:
         try:
 
             # Načtení uživatelem vybraného listu
@@ -91,7 +102,10 @@ class ExcelTab(Frame):
             excel_error_label.grid(column=1, row=2, sticky="nw", padx=5, pady=5)
             self.after(5000, excel_error_label.destroy)
 
-    def sheet_button(self,number_of_sheets, sheet_list):
+    def sheet_button(self,
+                     number_of_sheets: int,
+                     sheet_list: list[str],
+                     ) -> None:
 
         # Dynamické vytvoření tlačítka pro každý dostupný list
         for n,_ in enumerate(range(number_of_sheets)):
@@ -102,12 +116,14 @@ class ExcelTab(Frame):
             sheet_btn.grid(column=0, row=n + 1, sticky="nw", padx=5, pady=5)
             self.sheet_bnt_list.append(sheet_btn)
 
-    def sheet_loader(self, selected_sheet):
+    def sheet_loader(self,
+                     selected_sheet: str
+                     ) -> None:
 
         # Předání vybraného listu k načtení
         self.load_excel_sheet(selected_sheet)
 
-    def reload_excel(self):
+    def reload_excel(self) -> None:
 
         # Aktualizace cesty k Excelu a obnovení seznamu dostupných listů
         path = self.path_entry.get()
