@@ -17,14 +17,18 @@ from infra.email_details import email_details
 from infra.infra_utilities import html_converter
 
 from core.utilities import safe_write_config, importance_toggle
-import constants as c
+from core.protocols import AppStateProtocol
 
+import constants as c
+import configparser
 import logging
 
 logger = logging.getLogger(__name__)
 
-def setup_gui(config,state):
-    """sets up GUI for tkinter"""
+def setup_gui(config: configparser.ConfigParser
+              ,state: AppStateProtocol
+              ) -> None:
+    """nastaví GUI pro tkinter"""
     root = Tk()
     notebook = ttk.Notebook(root)
     notebook.pack(expand=True, fill='both')
@@ -42,7 +46,7 @@ def setup_gui(config,state):
     # notebook.add(signature_tab, text="Signature")
     notebook.add(excel_tab, text="Excel")
 
-    #tab list and their sizes
+    #tab list a jejich velikosti
     TAB_FIELDS = {
         email_tab: '700x350',
         email_preview_tab: '1200x600',
@@ -50,7 +54,8 @@ def setup_gui(config,state):
         excel_tab: '600x300'
     }
 
-    def resize_tab(event):
+    def resize_tab(event) -> None:
+        # Změní veikost jednotlivých oken
         tab_id = event.widget.select()
         tab = event.widget.nametowidget(tab_id)
 

@@ -1,12 +1,21 @@
 import constants as c
 import pandas as pd
-from core.utilities import remove_diacritics
+import configparser
 import logging
+
+from core.protocols import AppStateProtocol
+from core.utilities import remove_diacritics
+from pathlib import Path
+from collections.abc import Callable
 
 logger = logging.getLogger(__name__)
 
 class ExcelLoader:
-    def __init__(self,config, excel_raw_load, selected_sheet,app_state):
+    def __init__(self,config: configparser.ConfigParser,
+                 excel_raw_load: Callable[[str | Path ,str],pd.DataFrame],
+                 selected_sheet: str,
+                 app_state: AppStateProtocol,
+                 ) -> None:
         # Uložení závislostí potřebných pro načtení Excelu a aktualizaci stavu aplikace.
         self.excel_raw_load = excel_raw_load
         self.config = config
@@ -14,7 +23,7 @@ class ExcelLoader:
         self.selected_sheet = selected_sheet
         self.app_state = app_state
 
-    def excel_load(self):
+    def excel_load(self) -> None:
         # Načtení aktuální cesty k Excel souboru z konfigurace.
         filepath = self.config.get(c.EXCEL_SECTION,c.EXCEL_PATH)
         try:
@@ -28,12 +37,13 @@ class ExcelLoader:
 
 
 class SheetManager:
-    def __init__(self,config):
+    def __init__(self,
+                 config: configparser.ConfigParser) -> None:
         # Načtení cesty k Excel souboru a inicializace vybraného listu.
         self.filepath = config.get(c.EXCEL_SECTION, c.EXCEL_PATH)
         self.selected_sheet = None
 
-    def sheet_checker(self):
+    def sheet_checker(self) -> tuple[list[str],int]:
         # Otevření Excel souboru a získání názvů všech dostupných listů.
         excel_file = pd.ExcelFile(self.filepath)
         sheets = excel_file.sheet_names
@@ -48,14 +58,13 @@ class SheetManager:
     #     logger.debug(f"selected sheet is: {self.selected_sheet}")
     #     return sheets[self.selected_sheet]
 
-def initial_filter(df):
+def initial_filter(df: pd.DataFrame) -> pd.DataFrame:
     """Vyfiltruje certifikáty typu Q-TW-CZ a vyřadí záznamy s ukončeným PPV."""
     # Uložení počtu řádků před filtrováním pro následné porovnání.
     before_count = len(df)
 
     # Zachování pouze záznamů, které splňují obě podmínky:
     # typ certifikátu je Q-TW-CZ a termín není ukončen ppv.
-    # fillna('') ošetřuje chybějící hodnoty, strip() odstraňuje okolní mezery.
     df = df[
         (
             df['Typ cert.']
@@ -79,7 +88,9 @@ def initial_filter(df):
     logger.info("Initial dataframe filter completed")
     return df
 
-def excel_search(value,df):
+def excel_search(value: str,
+                 df: pd.DataFrame | None
+                 ) -> list[tuple] | list[None]:
     # Vyhledávání probíhá pouze tehdy, pokud je DataFrame k dispozici.
     if df is not None:
         # Nejprve hledání podle loginu bez ohledu na velikost písmen a diakritiku.
@@ -105,9 +116,13 @@ def excel_search(value,df):
                         slice_df['Typ cert.'],
                         slice_df['Platnost do'],))
     # Pokud DataFrame není dostupný, vrátí se prázdný seznam.
+
     return []
 
-def excel_path_load(config,path,safe_write_config):
+def excel_path_load(config: configparser.ConfigParser,
+                    path: str,
+                    safe_write_config: Callable[[configparser.ConfigParser, str], None],
+                    ) -> None:
     # Kontrola, zda konfigurace obsahuje sekci EXCEL.
     if c.EXCEL_SECTION not in config:
         raise ValueError("Chybí sekce EXCEL")

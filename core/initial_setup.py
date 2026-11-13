@@ -71,7 +71,7 @@ def setup_logger():
     logger.debug("logger set")
     return logger
 
-def setup_config():
+def setup_config() -> configparser.ConfigParser:
     # Určuje základní adresář aplikace podle způsobu jejího spuštění.
     # Při spuštění jako samostatný executable se použije umístění
     # spustitelného souboru, jinak se využije výchozí adresář projektu.
