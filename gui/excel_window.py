@@ -4,19 +4,18 @@ import configparser
 
 from pathlib import Path
 from collections.abc import Callable
-
 from tkinter import Button, Label, Frame, Entry, ttk
 
-from core.protocols import AppStateProtocol
+from core.protocols import AppStateProtocol, ExcelLoaderFactory, SheetManagerFactory
 
 
 class ExcelTab(Frame):
     def __init__(self, notebook: ttk.Notebook,
                  safe_write_config: Callable[[configparser.ConfigParser,str],None],
                  config: configparser.ConfigParser,
-                 ExcelLoader,
+                 ExcelLoader: ExcelLoaderFactory,
                  excel_raw_load: Callable[[str | Path,str],pd.DataFrame],
-                 SheetManager,
+                 SheetManager: SheetManagerFactory,
                  excel_path_load: Callable[[configparser.ConfigParser,str,
                                             Callable[[configparser.ConfigParser, str], None]
                                             ],None],

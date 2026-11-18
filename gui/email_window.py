@@ -1,15 +1,30 @@
-from dataclasses import dataclass
-from tkinter import Frame, Button, Entry, Label, StringVar, Listbox
+import configparser
 import tkinter as tk
 import tkinter.messagebox
+import pandas as pd
+
+from typing import cast
+from collections.abc import Callable
+from dataclasses import dataclass
+from tkinter import Frame, Button, Entry, Label, StringVar, Listbox, ttk
 from tkhtmlview import HTMLLabel
 
+from core.protocols import EmailSendManagerFactory, EmailConstructorFactory, AppStateProtocol, EmailRowParentProtocol, \
+    EmailDataProtocol, EmailRowFactory
 
 
 class EmailTab(Frame):
-    def __init__(self, notebook, root, excel_search, config,
-                 selected_value_manager,html_converter,
-                 EmailSendManager, email_details, EmailConstructor, importance_toggle, app_state):
+    def __init__(self, notebook: ttk.Notebook,
+                 root: tk.Tk,
+                 excel_search: Callable[[str,pd.DataFrame | None],list[tuple] | list[None]],
+                 config: configparser.ConfigParser,
+                 selected_value_manager: Callable[[str],tuple[str, str, str]],
+                 html_converter: Callable[[str],str],
+                 EmailSendManager: EmailSendManagerFactory,
+                 email_details: Callable[[configparser.ConfigParser,str,str],None],
+                 EmailConstructor: EmailConstructorFactory,
+                 importance_toggle: Callable[[str,int],str] ,
+                 app_state: AppStateProtocol):
         super().__init__(notebook)
 
         # --- Stav a závislosti záložky ---
@@ -32,12 +47,12 @@ class EmailTab(Frame):
 
 
 
-    def toolbox(self):
+    def toolbox(self) -> None:
         """Vytvoří popisky v horní části záložky."""
         Label(self, text='Email').grid(column=0, row=0, pady=5, padx=25)
         # Label (self, text='Datum vypršení certifikátu').grid(column=1, row=0, pady=5, padx=75)
 
-    def default_row(self):
+    def default_row(self) -> None:
         """Inicializuje první (výchozí) řádek."""
         # Vytvoření prvního řádku a předání potřebných callbacků a závislostí.
         row = EmailRow( self, self.config,
@@ -63,7 +78,7 @@ class EmailTab(Frame):
         self.create_add_email_btn()
         self.create_send_btn(2)
 
-    def create_add_email_btn(self):
+    def create_add_email_btn(self) -> None:
         # Tlačítko s ikonou plus přidává další e-mailový řádek.
         self.add_email_btn = Button(self, text='➕', command=self.add_email)
         self.add_email_btn.grid(row=1,column=6, padx= 0)
@@ -98,7 +113,7 @@ class EmailTab(Frame):
 
         return row
 
-    def check_add_email_btn_grid(self):
+    def check_add_email_btn_grid(self) -> None:
 
         # Zjištění, zda existuje alespoň jeden prázdný a alespoň jeden vyplněný řádek.
         has_empty = any(not row.entry_email.get().strip() for row in self.rows)
@@ -110,12 +125,12 @@ class EmailTab(Frame):
         else:
             self.add_email_btn.grid()
 
-    def create_send_btn(self, row):
+    def create_send_btn(self, row) -> None:
         """Vytvoří tlačítko pro odeslání e-mailů."""
         self.btn_send_email = Button(self, text='Odeslat email', command=self.send_email)
         self.btn_send_email.grid(column=0, row=row, pady=20)
 
-    def remove_row(self, row):
+    def remove_row(self, row) -> None:
         """Odstraní konkrétní řádek a přepočítá rozložení prvků."""
         # Odstranění widgetu z grafického rozhraní a ze seznamu řádků.
         row.destroy()
@@ -131,7 +146,7 @@ class EmailTab(Frame):
         self.create_send_btn(len(self.rows) + 1)
         self.check_add_email_btn_grid()
 
-    def send_email(self):
+    def send_email(self) -> None:
         """Zobrazí potvrzení a následně zajistí odeslání e-mailů."""
         # Před odesláním se uživatele zeptá na potvrzení akce.
         if tkinter.messagebox.askquestion(title='', message='Odeslat email?') == 'yes':
@@ -154,7 +169,7 @@ class EmailTab(Frame):
             # Po odeslání se formulář vrátí do výchozího stavu.
             self.reset_rows()
 
-    def reset_rows(self):
+    def reset_rows(self) -> None:
         """Vrátí grafické rozhraní do výchozího stavu."""
         # Odstranění všech aktuálně vytvořených řádků.
         for row in self.rows:
@@ -163,7 +178,7 @@ class EmailTab(Frame):
         self.rows.clear()
         self.default_row()
 
-    def on_search_change(self, row):
+    def on_search_change(self, row) -> None:
         """Spustí živé vyhledávání při změně textu v e-mailovém poli."""
         # Vyhledávání se spouští pouze pro řádek, který stále existuje.
         if row in self.rows:
@@ -172,7 +187,7 @@ class EmailTab(Frame):
             # Vyhledávání se spustí až po zadání alespoň tří znaků.
             if len(email_val) >= 3:
                 self.live_search(email_val, row)
-    def live_search(self, entry_val, row):
+    def live_search(self, entry_val:str, row) -> None:
         """Vytvoří našeptávací seznam odpovídajících záznamů."""
 
         # Vyhledání odpovídajících záznamů v aktuálním DataFrame.
@@ -230,13 +245,13 @@ class EmailTab(Frame):
             add="+"
         )
 
-    def focus_dropdown(self, row):
+    def focus_dropdown(self, row) -> None:
         # Pokud dropdown existuje, předá se fokus jeho Listboxu a označí se první položka.
         if self.dropdown and hasattr(self.dropdown, "listbox"):
             self.dropdown.listbox.focus_set()
             self.dropdown.listbox.selection_set(0)
 
-    def on_select(self, event=None ):
+    def on_select(self, event= None ) -> None:
         # Pokud není otevřený dropdown, není co vybírat.
         if not self.dropdown:
             return
@@ -274,12 +289,12 @@ class EmailTab(Frame):
         row.safe_set_values(email, exp_date, exp_time)
         row.set_data()
 
-    def refocus_entry(self,row):
+    def refocus_entry(self,row) -> None:
         # Přesunutí fokusu do e-mailového pole nově vytvořeného řádku.
         row.entry_email.focus_set()
 
     @staticmethod
-    def _pop_up_window(title, text):
+    def _pop_up_window(title: str, text: str) -> None:
         # Zobrazení informačního dialogového okna.
         tkinter.messagebox.showinfo(title=title, message=text)
 
@@ -293,8 +308,16 @@ class EmailRow(Frame):
     - Tlačítko pro náhled / preview emailu
     """
 
-    def __init__(self, parent, config, remove_callback, EmailConstructor, html_converter,root, importance_toggle):
-        super().__init__(parent)
+    def __init__(self,
+                 parent: EmailRowParentProtocol,
+                 config: configparser.ConfigParser,
+                 remove_callback: Callable[["EmailRow"],None],
+                 EmailConstructor:EmailConstructorFactory,
+                 html_converter: Callable[[str],str],
+                 root: tk.Tk,
+                 importance_toggle: Callable[[str,int],str]
+                 ) -> None:
+        super().__init__(cast(tk.Misc, cast(object, parent)))
 
         # --- internal state ---
         self.root = root
@@ -320,7 +343,7 @@ class EmailRow(Frame):
         # ------------------------------
         # Debounce callback pro live search
         # ------------------------------
-        def trace_callback(*args):
+        def trace_callback(*args) -> None:
             # Při programové aktualizaci hodnoty se vyhledávání nespustí.
             if self.is_updating:
                 return
@@ -364,7 +387,7 @@ class EmailRow(Frame):
         self.btn_delete = Button(self, text="x", command=lambda: remove_callback(self))
         self.btn_delete.grid(column=4, row=0)
 
-    def email_preview(self):
+    def email_preview(self) -> None:
         """Vytvoří náhled e-mailu pro aktuální řádek."""
         # Sestavení těla e-mailu a uložení výsledku do datového objektu.
         self.EmailConstructor(self.config,self.data, self.importance_toggle).set_email_body()
@@ -374,16 +397,16 @@ class EmailRow(Frame):
         converted_text = self.html_converter(text)
 
         # Vytvoření samostatného vyskakovacího okna s náhledem.
-        popup = tk.Toplevel(self.parent)
+        popup = tk.Toplevel(cast(tk.Misc, cast(object, self.parent)))
         popup.wm_title("🔎")
 
         HTMLLabel(popup, html=converted_text,height=30,padx=25,pady=25).pack()
 
-    def on_enter(self,event):
+    def on_enter(self,event: tk.Event) -> None:
         # Předání události Enter rodičovské třídě, která zpracuje výběr z dropdownu.
         self.parent.on_select(event)
 
-    def on_down(self, event):
+    def on_down(self, event: tk.Event) -> str:
         # Při stisku šipky dolů se fokus přesune do našeptávacího seznamu.
         if self.parent.dropdown:
             self.parent.dropdown.listbox.focus_set()
@@ -394,7 +417,11 @@ class EmailRow(Frame):
         # Zabrání standardnímu zpracování události klávesy v Entry.
         return "break"
 
-    def safe_set_values(self, email, exp_date, exp_time):
+    def safe_set_values(self,
+                        email: str,
+                        exp_date: str,
+                        exp_time: str
+                        ) -> None:
         # Dočasné vypnutí reakce na změnu StringVar během programového vyplňování.
         self.is_updating = True
         try:
@@ -411,7 +438,7 @@ class EmailRow(Frame):
         finally:
             # Příznak se vrátí do původního stavu i v případě chyby.
             self.is_updating = False
-    def set_data(self):
+    def set_data(self)  -> EmailDataProtocol:
         # Přenos aktuálních hodnot z řádku do datového objektu EmailData.
         self.data.email = self.email
         self.data.exp_date = self.exp_date
@@ -419,7 +446,6 @@ class EmailRow(Frame):
 
         # Vrácení aktualizovaného datového objektu.
         return self.data
-
 
 class EmailDropDownMenu(tk.Toplevel):
 
@@ -604,4 +630,3 @@ class EmailData:
     email_body: str
     email: str
     importance:int
-

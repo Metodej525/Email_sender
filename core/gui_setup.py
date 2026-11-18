@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+import tkinter as tk
 
 from Repository.excel_repository import excel_raw_load
 
@@ -54,7 +55,7 @@ def setup_gui(config: configparser.ConfigParser
         excel_tab: '600x300'
     }
 
-    def resize_tab(event) -> None:
+    def resize_tab(event: tk.Event) -> None:
         # Změní veikost jednotlivých oken
         tab_id = event.widget.select()
         tab = event.widget.nametowidget(tab_id)
