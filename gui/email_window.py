@@ -3,7 +3,7 @@ import tkinter as tk
 import tkinter.messagebox
 import pandas as pd
 
-from typing import cast
+from typing import cast, Any
 from collections.abc import Callable
 from dataclasses import dataclass
 from tkinter import Frame, Button, Entry, Label, StringVar, Listbox, ttk
@@ -245,7 +245,7 @@ class EmailTab(Frame):
             add="+"
         )
 
-    def focus_dropdown(self, row) -> None:
+    def focus_dropdown(self, row: EmailRowFactory) -> None:
         # Pokud dropdown existuje, předá se fokus jeho Listboxu a označí se první položka.
         if self.dropdown and hasattr(self.dropdown, "listbox"):
             self.dropdown.listbox.focus_set()
@@ -289,7 +289,7 @@ class EmailTab(Frame):
         row.safe_set_values(email, exp_date, exp_time)
         row.set_data()
 
-    def refocus_entry(self,row) -> None:
+    def refocus_entry(self,row: EmailRowFactory) -> None:
         # Přesunutí fokusu do e-mailového pole nově vytvořeného řádku.
         row.entry_email.focus_set()
 
@@ -449,7 +449,7 @@ class EmailRow(Frame):
 
 class EmailDropDownMenu(tk.Toplevel):
 
-    def __init__(self, root, row, parent):
+    def __init__(self, root: tk.Tk, row: EmailRowFactory, parent):
         super().__init__(root)
 
         self.root = root
@@ -476,14 +476,14 @@ class EmailDropDownMenu(tk.Toplevel):
     # POSITION
     # =========================
 
-    def on_enter(self, event):
+    def on_enter(self, event: tk.Event) -> str:
         # Předání potvrzení výběru rodičovské třídě.
         if self.parent.dropdown:
             self.parent.on_select(event)
 
         # Zabránění dalšímu standardnímu zpracování klávesy Enter.
         return "break"
-    def update_position(self):
+    def update_position(self) -> None:
 
         try:
             # Získání vodorovné souřadnice vstupního pole na obrazovce.
@@ -502,7 +502,7 @@ class EmailDropDownMenu(tk.Toplevel):
             # Ignorování chyby, pokud již příslušný Tkinter widget neexistuje.
             pass
 
-    def _on_window_move(self, event):
+    def _on_window_move(self, event: tk.Event) -> None:
         # Při změně pozice nebo velikosti hlavního okna se aktualizuje pozice dropdownu.
         self.update_position()
 
@@ -510,15 +510,15 @@ class EmailDropDownMenu(tk.Toplevel):
     # CLOSE EVENTS
     # =========================
 
-    def _on_minimize(self, event):
+    def _on_minimize(self, event: tk.Event) -> None:
         # Zavření dropdownu při minimalizaci hlavního okna.
         self.safe_destroy()
 
-    def _on_tab_change(self, event):
+    def _on_tab_change(self, event: tk.Event) -> None:
         # Zavření dropdownu při přepnutí na jinou záložku.
         self.safe_destroy()
 
-    def on_click_outside(self, event):
+    def on_click_outside(self, event: tk.Event) -> None:
 
         try:
             widget = event.widget
@@ -542,7 +542,7 @@ class EmailDropDownMenu(tk.Toplevel):
     # BEZPEČNÉ ODSTRANĚNÍ OKNA
     # =========================
 
-    def safe_destroy(self):
+    def safe_destroy(self) -> None:
 
         try:
             self.destroy()
@@ -559,7 +559,10 @@ class SkullToggle(tk.Button):
         - vypnutý stav = šedé pozadí
         - zapnutý stav = žluté pozadí
         """
-    def __init__(self, master,data, **kwargs):
+    def __init__(self, master: tk.Misc,
+                 data: EmailDataProtocol,
+                 **kwargs: Any
+                 ) -> None:
         # Inicializace základního Tkinter Button widgetu.
         super().__init__(master, text="💀", width=4, **kwargs)
 
@@ -571,7 +574,7 @@ class SkullToggle(tk.Button):
         self.master = master
 
 
-    def cycle(self,data):
+    def cycle(self,data: EmailDataProtocol) -> None:
         # Přepínání mezi třemi stavy; po třetím stavu se přechází zpět na první.
         if self.state >= 3:
             self.state = 1
@@ -583,7 +586,7 @@ class SkullToggle(tk.Button):
         self.set_state(data)
 
 
-    def update_style(self):
+    def update_style(self) -> None:
         """Nastaví vizuální styl tlačítka podle aktuálního stavu."""
         # První stav – šedé pozadí.
         if self.state == 1:

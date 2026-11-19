@@ -77,7 +77,7 @@ class EmailRowFactory(Protocol):
     ) -> EmailRowProtocol: ...
 
 class EmailRowProtocol(Protocol):
-    entry_email: EntryProtocol
+    entry_email: EntryProtocol | tk.Widget
     email: str | None
 
     def set_data(self) -> EmailDataProtocol: ...
@@ -88,6 +88,8 @@ class EmailRowProtocol(Protocol):
         exp_date: str,
         exp_time: str,
     ) -> None: ...
+
+
 
     def destroy(self) -> None: ...
 
