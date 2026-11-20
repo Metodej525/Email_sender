@@ -11,7 +11,7 @@ from gui.signature_window import SignatureTab
 
 from Service.email_preview_service import load_email_details
 from Service.email_service import selected_value_manager, EmailSendManager, EmailConstructor
-from Service.excel_service import excel_search, ExcelLoader, SheetManager, excel_path_load
+from Service.excel_service import excel_search, ExcelLoader, SheetManager, excel_path_load, get_excel_path_status
 from Service.signature_service import save_signature, load_signature_data
 
 from infra.email_details import email_details
@@ -38,7 +38,7 @@ def setup_gui(config: configparser.ConfigParser
 
     # signature_tab = SignatureTab(notebook,config,save_signature,safe_write_config,load_signature_data)
     email_preview_tab = EmailPreviewTab(notebook, load_email_details, html_converter, config, importance_toggle)
-    excel_tab = ExcelTab(notebook,safe_write_config, config, ExcelLoader, excel_raw_load, SheetManager, excel_path_load,state)
+    excel_tab = ExcelTab(notebook,safe_write_config, config, ExcelLoader, excel_raw_load, SheetManager, excel_path_load,get_excel_path_status,state)
     email_tab = EmailTab(notebook, root, excel_search, config, selected_value_manager, html_converter,
                          EmailSendManager, email_details, EmailConstructor, importance_toggle,state)
 

@@ -65,7 +65,7 @@ def setup_logger() -> logging.Logger:
     logger.addHandler(timed_handler)
 
     # Nastavení logs level
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.debug("logger set")
     return logger
 

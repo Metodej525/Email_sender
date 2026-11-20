@@ -21,6 +21,11 @@ class AppStateProtocol(Protocol):
     def get_df(self) -> pd.DataFrame | None: ...
     """Vrátí aktuálně uložený DataFrame, pokud je k dispozici."""
 
+    def set_file_path(self, file_path_key: str, file_path_value: str) -> None: ...
+    """Nastaví cestu k aktuálnímu excel souboru v AppState"""
+
+    def get_file_path(self) -> tuple[str,str]: ...
+    """Vrátí cestu k aktuálně načteném souboru Excel"""
 # ---------------------------------------------------------------------------
 # Datový model e-mailu
 # ---------------------------------------------------------------------------
@@ -44,7 +49,6 @@ class ExcelLoaderFactory(Protocol):
     def __call__(
         self, config: configparser.ConfigParser,
         excel_raw_load: Callable[[str | Path, str], pd.DataFrame],
-        selected_sheet: str,
         app_state: AppStateProtocol,
     ) -> ExcelLoaderProtocol: ...
     """Vytvoří načítač Excel souborů s požadovanými závislostmi."""
@@ -52,9 +56,14 @@ class ExcelLoaderFactory(Protocol):
 class ExcelLoaderProtocol(Protocol):
     """Definuje rozhraní pro načítání dat z Excel souborů do aplikace."""
 
-    def excel_load(self) -> None: ...
+    def excel_load(self, path: str, sheet: str) -> None: ...
     """Načte a zpracuje data z vybraného listu Excel souboru."""
 
+    def initial_excel_load(self,
+                           first_path: str,
+                           sheet_list: list[str]
+                           ) -> None: ...
+    """Načte první list Excelu při spuštění aplikace"""
 
 # ---------------------------------------------------------------------------
 # Správa listů v Excel souboru
@@ -64,7 +73,8 @@ class SheetManagerFactory(Protocol):
     """Definuje rozhraní továrny pro vytváření správců Excel listů."""
 
     def __call__(
-        self, config: configparser.ConfigParser
+        self, path: str,
+            config: configparser.ConfigParser
     )-> SheetManagerProtocol: ...
     """Vytvoří správce Excel listů na základě konfigurace aplikace."""
 

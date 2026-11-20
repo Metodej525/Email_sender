@@ -30,7 +30,7 @@ SIGNATURE_DEPARTMENT = 'department'
 SIGNATURE_LOGIN = 'login'
 SIGNATURE_EMAIL = 'email'
 
-EXCEL_SECTION = 'EXCEL'
-EXCEL_PATH = 'path'
+EXCEL_PATHS = 'EXCEL_PATHS'
+EXCEL_DEFAULT_PATH = 'default_excel_path'
 
 
