@@ -87,7 +87,6 @@ def get_excel_path_status(config:configparser.ConfigParser
         logger.debug("Failed to load excel paths from EXCEL_PATH_SECTION")
         return None
     else:
-        print(path_dict)
         return path_dict
 
 class SheetManager:

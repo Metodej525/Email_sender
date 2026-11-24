@@ -88,11 +88,11 @@ class ExcelTab(Frame):
         for n, (key, path_value) in enumerate(self.path_dict.items()):
 
             path_entry = Entry(self)
-            path_entry.grid(column=0, row=n, sticky="nw", padx=5, pady=5)
+            path_entry.grid(column=0, row=n, sticky="w", padx=5, pady=5)
             path_entry.insert(0, f'{path_value}')
 
             button_excel = Button(self,
-                text='reload excel file',
+                text='Load Excel',
                                   command=lambda key=key, path_value=path_value: self.reload_excel(
                                       sheet=sheet_list[0],
                                       path_key=key,
@@ -115,21 +115,22 @@ class ExcelTab(Frame):
                 self,
                 text=f'Chyba při načítání Excelu: {e}'
             )
-            excel_error_label.grid(column=1, row=2, sticky="nw", padx=5, pady=5)
+            excel_error_label.grid(column=1, row=2, sticky="w", padx=5, pady=5)
             self.after(5000, excel_error_label.destroy)
 
     def sheet_button(self,
                      number_of_sheets: int,
                      sheet_list: list[str],
                      ) -> None:
-
+        sheet_label = Label(self,text='Listy', padx=25)
+        sheet_label.grid(column=2,row=0, sticky="e")
         # Dynamické vytvoření tlačítka pro každý dostupný list
         for n,_ in enumerate(range(number_of_sheets)):
             sheet_btn = Button(self,
                                text= n + 1,
                                # Výchozí argument lambda uchovává správný list pro každé tlačítko
                                command=lambda sheet=sheet_list[n]: self.sheet_loader(sheet))
-            sheet_btn.grid(column=0, row= n + 3, sticky="nw", padx=5, pady=5)
+            sheet_btn.grid(column=n + 3, row= 0, padx=5, pady=5)
             self.sheet_bnt_list.append(sheet_btn)
 
     def sheet_loader(self,

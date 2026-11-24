@@ -31,6 +31,6 @@ SIGNATURE_LOGIN = 'login'
 SIGNATURE_EMAIL = 'email'
 
 EXCEL_PATHS = 'EXCEL_PATHS'
-EXCEL_DEFAULT_PATH = 'default_excel_path'
+
 
 
