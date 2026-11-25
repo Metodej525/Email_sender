@@ -93,7 +93,7 @@ class EmailSendManager:
 def selected_value_manager(value: str) -> tuple[str, str, str]:
     """Zpracuje vybranou hodnotu a připraví údaje potřebné pro vytvoření e-mailové adresy."""
     # Rozdělení vstupního řetězce na jednotlivé údaje a odstranění okolních mezer.
-    raw_surname, raw_firstname, login, cert_type, exp = [x.strip() for x in value.split(',')]
+    raw_firstname, raw_surname, login, cert_type, exp = [x.strip() for x in value.split(',')]
 
     # Rozdělení data a času expirace.
     exp_date, exp_time = exp.split()
