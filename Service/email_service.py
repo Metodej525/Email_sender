@@ -104,10 +104,10 @@ def selected_value_manager(value: str) -> tuple[str, str, str]:
     firstname = remove_diacritics(raw_firstname.lower().replace(' ','.'))
 
     logger.debug("diacritics removed")
-
     # Sestavení e-mailové adresy podle jména a příjmení.
     email = f"{firstname}.{surname}@ikem.cz"
     logger.debug(f'email set as: {email}, exp_date as: {exp_date}, exp_time as: {exp_time}')
+
     return email, exp_date, exp_time
 
 def previous_workday(exp_date: str) -> str:
